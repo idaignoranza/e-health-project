@@ -1,0 +1,9 @@
+import sqlite3
+def deletecontent(DB):
+    conn= None
+    conn = sqlite3.connect(DB)
+    curs = conn.cursor()
+    delete = "delete from Articles"
+    curs.execute(delete)
+    conn.commit()
+    conn.close()
