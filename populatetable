@@ -1,0 +1,10 @@
+import sqlite3
+def populatetable(DB, id, doi, pid, tit, date, aut, abstract):
+    conn= None
+    conn = sqlite3.connect(DB)
+    curs = conn.cursor()
+    populate = "insert into Articles(ID, DOI, PubmedID, Title, PubDate, Authors, Abstract) values(?,?,?,?,?,?,?)"
+    rec = (id, doi, pid, tit, date, aut, abstract)
+    curs.execute(populate,rec)
+    conn.commit()
+    conn.close()
