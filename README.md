@@ -29,4 +29,5 @@ documento {
 Dobbiamo capire:
 1. Quali campi (doi, autori, abstract...) di un documento ci interessano 
 2. Come modellare la tabella all'interno del database, ossia quali tipi 
-corrispondono ai campi e quali chiavi utilizzare (probabilmente un id incrementale a partire da `0`?)
+corrispondono ai campi e quali chiavi utilizzare (probabilmente un id 
+incrementale a partire da `0`?)
