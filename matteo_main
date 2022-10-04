@@ -10,6 +10,7 @@ pubmed = PubMed(tool="MyTool", email="my@email.address")
 
 db="Pubmed_research.db"
 db_is_new = not os.path.exists(db)
+
 if __name__ == '__main__':
     if db_is_new:
         create_connection(db)

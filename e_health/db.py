@@ -27,6 +27,7 @@ class DBManager:
     # Check if table exists.
     def check_exists(self) -> bool:
         query_text = "SELECT count(name) FROM sqlite_master WHERE type='table' AND name='Articles'"
+        # sqlite_master è il tipo
         self.cursor.execute(query_text)
         # if the count is 1, then table exists
         return self.cursor.fetchone()[0] == 1
