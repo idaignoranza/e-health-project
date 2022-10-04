@@ -1,25 +1,17 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
 
 import os
 from pymed import PubMed
 import e_health
-
+#import pandas as pd
 
 # # Connect to the database
 
-# In[2]:
-
-
-db_path = "data/db"
+db_path = "data.db"
 db = e_health.db.DBManager(db_path)
 print("Connecting to", db_path)
-
-
-# In[3]:
 
 
 # Check if table and database exists
@@ -32,7 +24,6 @@ else:
 
 # # Fetch articles
 
-# In[4]:
 pubmed = PubMed()
 print("----------")
 sel=input("Insert the term that you want to find: ")
@@ -45,9 +36,6 @@ print("----------")
 
 
 # # Populate the database
-
-# In[5]:
-
 
 articles = []
 
@@ -65,22 +53,21 @@ for result in results:
                                              doi = doi, abstract = abstract,
                                              pub_date = pub_date, authors = authors )
 
+    # print article:
     print('\n----------------\n')
     print("made article:", "\ntitle:", article.title,
-                          "\npubmed id:", article.pubmed_id,
-                          "\ndoi:", article.doi,
-                          "\ndate:", article.pub_date,
-                          "\nauthors:", article.authors
-                          )
+                           "\npubmed id:", article.pubmed_id,
+                           "\ndoi:", article.doi,
+                           "\ndate:", article.pub_date,
+                           "\nauthors:", article.authors
+                           )
+
+    # append article:
     articles.append(article)
+
 
 db.insert_documents_and_commit(articles)
 
 
-# In[6]:
-
 print("db contains", len(db.get_articles()), "articles")
-
-
-
 
