@@ -95,3 +95,8 @@ class DBManager:
             pub_date=pub_date,
             authors=authors,
         )
+
+    # Close the database.
+    def close(self):
+        self.cursor.close()
+        self.connection.close()

@@ -9,7 +9,7 @@ import e_health
 
 # # Connect to the database
 
-db_path = "data.db"
+db_path = "data/data.db"
 db = e_health.db.DBManager(db_path)
 print("Connecting to", db_path)
 
@@ -71,3 +71,4 @@ db.insert_documents_and_commit(articles)
 
 print("db contains", len(db.get_articles()), "articles")
 
+db.close()
