@@ -68,7 +68,7 @@ for result in results:
 
 db.insert_documents_and_commit(articles)
 
-
+print('\n----------------\n')
 print("db contains", len(db.get_articles()), "articles")
 
 db.close()

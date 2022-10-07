@@ -25,7 +25,11 @@ class DBManager:
         except BaseException as e:
             raise e
 
+    # Delete table. Do nothing if the table does not exists.
+    # def delete_table(self):
     # Check if table exists.
+
+
     def check_exists(self) -> bool:
         query_text = "SELECT count(name) FROM sqlite_master WHERE type='table' AND name='Articles'"
         # sqlite_master è il tipo
@@ -46,7 +50,7 @@ class DBManager:
             query_text = (
                 "CREATE TABLE Articles ("
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT, DOI TEXT, PubmedID TEXT, Title TEXT, PubDate TEXT, "
-                "Authors TEXT, Abstract TEXT) "
+                "Authors TEXT, Abstract TEXT)"
             )
             self.cursor.execute(query_text)
         except sqlite3.Error as e:
