@@ -12,7 +12,7 @@ print("Connecting to", db_path)
 
 # Check if table and database exists
 if os.path.exists(db_path) and db.check_exists():
-    reset = input("The database already exists! Do you want to reset it? [Y/n] ")
+    reset = input("The database already exists! Do you want to reset it? [Y]\n ")
     if reset.upper() == 'Y':
         db.delete_table()
         db.create_table()
@@ -24,6 +24,7 @@ else:
 pubmed = PubMed()
 print("----------")
 sel = input("Insert the term that you want to find: ")
+# keyboard input
 num = input("Insert how many articles do you want to find: ")
 results = pubmed.query(sel, max_results=int(num))
 print("----------")
@@ -39,12 +40,13 @@ for result in results:
     abstract = result.abstract
     pub_date = result.publication_date 
     authors = result.authors
+    researchkeys = sel
     
     
-    # print("got article with title", title, "pid", pid, "doi", doi, "abstract", abstract, "pub_date", pub_date, "authors", authors)
+    # print("got article with title", title, "pid", pid, "doi", doi, "abstract", abstract, "pub_date", pub_date, "authors", authors, "researchkeys", sel)
     article = e_health.article.Article(title = title, pubmed_id=pid, 
                                              doi = doi, abstract = abstract,
-                                             pub_date = pub_date, authors = authors)
+                                             pub_date = pub_date, authors = authors, researchkeys=sel)
 
     # print article:
     print('\n----------------\n')
@@ -52,7 +54,8 @@ for result in results:
                            "\npubmed id:", article.pubmed_id,
                            "\ndoi:", article.doi,
                            "\ndate:", article.pub_date,
-                           "\nauthors:", article.authors
+                           "\nauthors:", article.authors,
+                            "\nresearchkeys:", article.researchkeys
                            )
 
     # append article:

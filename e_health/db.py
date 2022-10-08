@@ -54,7 +54,7 @@ class DBManager:
             query_text = (
                 "CREATE TABLE Articles ("
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT, DOI TEXT, PubmedID TEXT, Title TEXT, PubDate TEXT, "
-                "Authors TEXT, Abstract TEXT)"
+                "Authors TEXT, Abstract TEXT, ResearchKeys TEXT)"
             )
             self.cursor.execute(query_text)
         except sqlite3.Error as e:
@@ -63,7 +63,7 @@ class DBManager:
     # Insert a new document into the database. Note: this function DOES NOT commit the query.
     def insert_document(self, doc: Article):
         try:
-            query_text = "INSERT INTO Articles (PubmedID, DOI, Title, PubDate, Authors, Abstract) VALUES (?,?,?,?,?,?)"
+            query_text = "INSERT INTO Articles (PubmedID, DOI, Title, PubDate, Authors, Abstract, ResearchKeys) VALUES (?,?,?,?,?,?,?)"
             self.cursor.execute(
                 query_text,
                 [
@@ -73,6 +73,7 @@ class DBManager:
                     doc.pub_date,
                     doc.authors,
                     doc.abstract,
+                    doc.researchkeys,
                 ],
             )
         except BaseException as e:
@@ -91,7 +92,7 @@ class DBManager:
         return list(map(self._art_from_tuple, results))
 
     def _art_from_tuple(self, t):
-        (_, pubmed_id, doi, title, pub_date, authors, abstract) = t
+        (_, pubmed_id, doi, title, pub_date, authors, abstract, researchkeys) = t
         return Article(
             title=title,
             pubmed_id=pubmed_id,
@@ -99,6 +100,7 @@ class DBManager:
             abstract=abstract,
             pub_date=pub_date,
             authors=authors,
+            researchkeys=researchkeys,
         )
 
     # Close the database.

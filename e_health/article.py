@@ -10,6 +10,7 @@ class Article:
     pubmed_id: Optional[str]
     abstract: Optional[str]
     pub_date: Optional[str]
+    researchkeys: Optional[str]
 
     def __init__(
         self,
@@ -19,6 +20,7 @@ class Article:
         abstract: str,
         pub_date: str,
         authors: List[Dict] or str,
+        researchkeys: str,
     ):
 
         if title == "":
@@ -45,6 +47,7 @@ class Article:
             self.pub_date = None
         else:
             self.pub_date = pub_date
+
         if isinstance(authors, str):
             self.authors = authors
         else:
@@ -64,8 +67,13 @@ class Article:
                     if (i + 1) < authors_len:
                         self.authors = self.authors + ", "
 
+        if researchkeys == "":
+            self.researchkeys = None
+        else:
+            self.researchkeys = researchkeys
+
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        return f"(title: {self.title}, authors: {self.authors}, doi: {self.doi}, pubmed_id: {self.pubmed_id}, abstract: {self.abstract}, pub_date: {self.pub_date})"
+        return f"(title: {self.title}, authors: {self.authors}, doi: {self.doi}, pubmed_id: {self.pubmed_id}, abstract: {self.abstract}, pub_date: {self.pub_date}, researchkeys: {self.researchkeys})"
