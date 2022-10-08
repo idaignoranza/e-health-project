@@ -26,10 +26,14 @@ class DBManager:
             raise e
 
     # Delete table. Do nothing if the table does not exists.
-    # def delete_table(self):
+    def delete_table(self):
+        query_text = "DROP TABLE Articles"
+        try:
+            self.cursor.execute(query_text)
+        except BaseException as e:
+            raise e
+
     # Check if table exists.
-
-
     def check_exists(self) -> bool:
         query_text = "SELECT count(name) FROM sqlite_master WHERE type='table' AND name='Articles'"
         # sqlite_master è il tipo
@@ -55,9 +59,6 @@ class DBManager:
             self.cursor.execute(query_text)
         except sqlite3.Error as e:
             raise e
-        finally:
-            if self.connection is not None:
-                self.connection.close()
 
     # Insert a new document into the database. Note: this function DOES NOT commit the query.
     def insert_document(self, doc: Article):

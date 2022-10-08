@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-
 import os
 from pymed import PubMed
 import e_health
-#import pandas as pd
 
 # # Connect to the database
-
 db_path = "data/data.db"
 db = e_health.db.DBManager(db_path)
 print("Connecting to", db_path)
@@ -16,24 +12,21 @@ print("Connecting to", db_path)
 
 # Check if table and database exists
 if os.path.exists(db_path) and db.check_exists():
-    db.clear_table()
-    print("cleared existing db")
+    reset = input("The database already exists! Do you want to reset it? [Y/n] ")
+    if reset.upper() == 'Y':
+        db.delete_table()
+        db.create_table()
 else:
     db.create_table()
 
 
 # # Fetch articles
-
 pubmed = PubMed()
 print("----------")
-sel=input("Insert the term that you want to find: ")
-num=input("Insert how many articles do you want to find: ")
+sel = input("Insert the term that you want to find: ")
+num = input("Insert how many articles do you want to find: ")
 results = pubmed.query(sel, max_results=int(num))
 print("----------")
-
-#pubmed = PubMed()
-#results = pubmed.query(query, max_results=max_results)
-
 
 # # Populate the database
 
@@ -51,7 +44,7 @@ for result in results:
     # print("got article with title", title, "pid", pid, "doi", doi, "abstract", abstract, "pub_date", pub_date, "authors", authors)
     article = e_health.article.Article(title = title, pubmed_id=pid, 
                                              doi = doi, abstract = abstract,
-                                             pub_date = pub_date, authors = authors )
+                                             pub_date = pub_date, authors = authors)
 
     # print article:
     print('\n----------------\n')
