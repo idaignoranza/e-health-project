@@ -12,7 +12,7 @@ print("Connecting to", db_path)
 
 # Check if table and database exists
 if os.path.exists(db_path) and db.check_exists():
-    reset = input("The database already exists! Do you want to reset it? [Y] ")
+    reset = input("The database already exists! Do you want to reset it? [Y/n] ")
     if reset.upper() == 'Y':
         db.delete_table()
         db.create_table()
@@ -43,7 +43,7 @@ for result in results:
     researchkeys = sel
     
     
-    # print("got article with title", title, "pid", pid, "doi", doi, "abstract", abstract, "pub_date", pub_date, "authors", authors, "researchkeys", sel)
+    #print("got article with title", title, "pid", pid, "doi", doi, "abstract", abstract, "pub_date", pub_date, "authors", authors, "researchkeys", sel)
     article = e_health.article.Article(title = title, pubmed_id=pid, 
                                              doi = doi, abstract = abstract,
                                              pub_date = pub_date, authors = authors, researchkeys=sel)
@@ -58,9 +58,14 @@ for result in results:
                             "\nresearchkeys:", article.researchkeys
                            )
 
+    #for db.get_articles().doi in db.get_articles():
+        #if result.doi == db.get_articles().doi:
+           # db.get_articles().researchkeys.append(article.researchkeys),
+           # break
+
+
     # append article:
     articles.append(article)
-
 
 db.insert_documents_and_commit(articles)
 
