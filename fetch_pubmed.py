@@ -12,7 +12,7 @@ print("Connecting to", db_path)
 
 # Check if table and database exists
 if os.path.exists(db_path) and db.check_exists():
-    reset = input("The database already exists! Do you want to reset it? [Y]\n ")
+    reset = input("The database already exists! Do you want to reset it? [Y] ")
     if reset.upper() == 'Y':
         db.delete_table()
         db.create_table()
