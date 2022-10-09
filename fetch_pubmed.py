@@ -58,16 +58,28 @@ for result in results:
                             "\nresearchkeys:", article.researchkeys
                            )
 
-    #for db.get_articles().doi in db.get_articles():
+    # !!!!!
+    # PROVA:
+    #for db.get_articles(). in db.get_articles():
         #if result.doi == db.get_articles().doi:
-           # db.get_articles().researchkeys.append(article.researchkeys),
-           # break
-
+          #db.get_articles().researchkeys.append(article.researchkeys)
+          #break
 
     # append article:
     articles.append(article)
 
 db.insert_documents_and_commit(articles)
+
+# !!!!!
+# PROVA:
+#db2 = e_health.db.DBManager(db_path)
+#db2.to_csv("db.csv")
+
+#import csv
+#with open('data.csv', 'w') as csvfile:
+    #writer = csv.writer(csvfile)
+    #writer.writerows(data)
+
 
 print('\n----------------\n')
 print("db contains", len(db.get_articles()), "articles")
