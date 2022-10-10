@@ -100,4 +100,29 @@ db.insert_documents_and_commit(articles)
 print('\n----------------\n')
 print("db contains", len(db.get_articles()), "articles")
 
+# contiamo quante volte compaiono le parole chiave 
+
+article_list = db.get_articles()
+keyword_list = ['kid', 'kids', 'child', 'children', 'infant', 'children', 'baby', 'serious game', 'applied game',
+                'game-based', 'game based']
+
+import re
+
+count_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+for art in article_list:
+    if art.abstract != None:
+        ab = art.abstract.lower() #metto l'abstract minuscolo
+        ab = re.sub(r'[.,"\'?:!;]', '', ab)  # per rimuovere punteggiatura
+
+        for i in range(0, len(keyword_list)):
+            if keyword_list[i] in ab:
+                count_list[i] = ab.count(keyword_list[i])
+        print(count_list)
+        count_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    else:
+        print("No abstract")
+
+
 db.close()
+
