@@ -53,7 +53,7 @@ class DBManager:
         try:
             query_text = (
                 "CREATE TABLE Articles ("
-                "ID INTEGER PRIMARY KEY AUTOINCREMENT, DOI TEXT, PubmedID TEXT, Title TEXT, PubDate TEXT, "
+                "ID INTEGER PRIMARY KEY AUTOINCREMENT,  PubmedID TEXT, DOI TEXT, Title TEXT, PubDate TEXT, "
                 "Authors TEXT, Abstract TEXT, ResearchKeys TEXT)"
             )
             self.cursor.execute(query_text)

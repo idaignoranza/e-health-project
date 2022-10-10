@@ -20,7 +20,7 @@ class Article:
         abstract: str,
         pub_date: str,
         authors: List[Dict] or str,
-        researchkeys: str,
+        researchkeys: List[str],
     ):
 
         if title == "":

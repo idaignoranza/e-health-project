@@ -32,6 +32,11 @@ print("----------")
 # # Populate the database
 
 articles = []
+list = db.get_articles()
+
+print(list)
+
+#x.title = 'ciuppa'
 
 for result in results:
     title = result.title
@@ -48,6 +53,7 @@ for result in results:
                                              doi = doi, abstract = abstract,
                                              pub_date = pub_date, authors = authors, researchkeys=sel)
 
+
     # print article:
     print('\n----------------\n')
     print("made article:", "\ntitle:", article.title,
@@ -58,22 +64,32 @@ for result in results:
                             "\nresearchkeys:", article.researchkeys
                            )
 
-    # !!!!!
-    # PROVA:
-    #for db.get_articles(). in db.get_articles():
-        #if result.doi == db.get_articles().doi:
-          #db.get_articles().researchkeys.append(article.researchkeys)
-          #break
+    duplicate = 0
 
-    # append article:
-    articles.append(article)
+    # Controllo duplicati:
+    for x in list:
+        print("entrato nel ciclo")
+        print(x.doi)
+
+        if x.doi == result.doi:
+            print("duplicato trovato")
+            print(sel)
+            #x.researchkeys.append(sel)
+            duplicate = 1
+
+    #print(duplicate)
+
+    if duplicate == 0:
+        # append article:
+        articles.append(article)
+
 
 db.insert_documents_and_commit(articles)
 
 # !!!!!
 # PROVA:
-#db2 = e_health.db.DBManager(db_path)
-#db2.to_csv("db.csv")
+#db2 = db.get_articles()
+#db2.to_csv('db.csv')
 
 #import csv
 #with open('data.csv', 'w') as csvfile:
