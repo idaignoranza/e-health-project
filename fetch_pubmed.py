@@ -103,12 +103,12 @@ print("db contains", len(db.get_articles()), "articles")
 # contiamo quante volte compaiono le parole chiave 
 
 article_list = db.get_articles()
-keyword_list = ['kid', 'kids', 'child', 'children', 'infant', 'children', 'baby', 'serious game', 'applied game',
+keyword_list = ['kid', 'kids', 'child', 'childhood', 'infant', 'children', 'baby', 'serious game', 'serious games', 'applied game',
                 'game-based', 'game based']
 
 import re
 
-count_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+count_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 for art in article_list:
     if art.abstract != None:
@@ -119,7 +119,7 @@ for art in article_list:
             if keyword_list[i] in ab:
                 count_list[i] = ab.count(keyword_list[i])
         print(count_list)
-        count_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        count_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     else:
         print("No abstract")
 
