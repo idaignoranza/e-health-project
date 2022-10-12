@@ -17,6 +17,8 @@ class DBManager:
     # connection
     # cursor
 
+    # self = puntatore all'oggetto stesso --> riferimento a se stesso
+
     def __init__(self, db_path: str):
         self.db_path = db_path
         try:
@@ -85,6 +87,25 @@ class DBManager:
             self.insert_document(doc)
         self.connection.commit()
 
+
+#    # Modify parameters of database.
+#    def update_task(self, task):
+##       """
+##       update researchkeys of a task
+##       :param conn:
+##       :param task:
+##       :return: project id
+##       """
+#
+#       sql = ''' UPDATE Articles
+#                 SET ResearchKeys = ?,
+#                 WHERE PubmedID = ?'''
+#
+#       #cur = self.cursor()
+#       self.cursor.execute(sql, task)
+#       #self.commit()
+
+
     # Get the list of articles from the database.
     def get_articles(self):
         self.cursor.execute("select * from Articles")
@@ -92,7 +113,7 @@ class DBManager:
         return list(map(self._art_from_tuple, results))
 
     def _art_from_tuple(self, t):
-        (_, pubmed_id, doi, title, pub_date, authors, abstract, researchkeys) = t
+        (id_, pubmed_id, doi, title, pub_date, authors, abstract, researchkeys) = t
         return Article(
             title=title,
             pubmed_id=pubmed_id,

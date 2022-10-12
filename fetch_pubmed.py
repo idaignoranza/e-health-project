@@ -34,10 +34,6 @@ print("----------")
 articles = []
 list = db.get_articles()
 
-print(list)
-
-#x.title = 'ciuppa'
-
 for result in results:
     title = result.title
     pid = result.pubmed_id
@@ -49,7 +45,7 @@ for result in results:
     
     
     #print("got article with title", title, "pid", pid, "doi", doi, "abstract", abstract, "pub_date", pub_date, "authors", authors, "researchkeys", sel)
-    article = e_health.article.Article(title = title, pubmed_id=pid, 
+    article = e_health.article.Article(title = title, pubmed_id=pid,
                                              doi = doi, abstract = abstract,
                                              pub_date = pub_date, authors = authors, researchkeys=sel)
 
@@ -68,16 +64,11 @@ for result in results:
 
     # Controllo duplicati:
     for x in list:
-        print("entrato nel ciclo")
-        print(x.doi)
-
         if x.doi == result.doi:
-            print("duplicato trovato")
-            print(sel)
-            #x.researchkeys.append(sel)
+            # questa funzione non funziona (vedi db)
+            # db.update_task((sel))
             duplicate = 1
 
-    #print(duplicate)
 
     if duplicate == 0:
         # append article:
@@ -86,21 +77,14 @@ for result in results:
 
 db.insert_documents_and_commit(articles)
 
-# !!!!!
-# PROVA:
-#db2 = db.get_articles()
-#db2.to_csv('db.csv')
-
-#import csv
-#with open('data.csv', 'w') as csvfile:
-    #writer = csv.writer(csvfile)
-    #writer.writerows(data)
-
 
 print('\n----------------\n')
 print("db contains", len(db.get_articles()), "articles")
 
-# contiamo quante volte compaiono le parole chiave 
+
+# ------------ SECONDA PARTE ---------------
+
+# contiamo quante volte compaiono le parole chiave
 
 article_list = db.get_articles()
 
@@ -140,5 +124,3 @@ count_list2 = [0, 0, 0, 0, 0, 0]
 count_list3 = [0, 0, 0, 0, 0]
 
 db.close()
-
-
