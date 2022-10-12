@@ -65,7 +65,7 @@ for result in results:
     # Controllo duplicati:
     for x in list:
         if x.doi == result.doi:
-            # questa funzione non funziona (vedi db)
+            # questa funzione non funziona (vedi db.py)
             # db.update_task((sel))
             duplicate = 1
 
