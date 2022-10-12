@@ -88,22 +88,22 @@ class DBManager:
         self.connection.commit()
 
 
-#    # Modify parameters of database.
-#    def update_task(self, task):
-##       """
-##       update researchkeys of a task
-##       :param conn:
-##       :param task:
-##       :return: project id
-##       """
-#
-#       sql = ''' UPDATE Articles
-#                 SET ResearchKeys = ?,
-#                 WHERE PubmedID = ?'''
-#
-#       #cur = self.cursor()
-#       self.cursor.execute(sql, task)
-#       #self.commit()
+    # Modify parameters of database.
+    def update_task(self, task):
+#       """
+#       update researchkeys of a task
+#       :param conn:
+#       :param task:
+#       :return: project id
+#       """
+
+       sql = ''' UPDATE Articles
+                 SET ResearchKeys = ?
+                 WHERE PubmedID = ?'''
+
+       #cur = self.cursor()
+       self.cursor.execute(sql, task)
+       #self.commit()
 
 
     # Get the list of articles from the database.

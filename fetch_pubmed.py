@@ -65,8 +65,10 @@ for result in results:
     # Controllo duplicati:
     for x in list:
         if x.doi == result.doi:
-            # questa funzione non funziona (vedi db.py)
-            # db.update_task((sel))
+            new_researchkeys = x.researchkeys+', '+sel
+            print(new_researchkeys)
+
+            db.update_task((new_researchkeys, x.pubmed_id))
             duplicate = 1
 
 
