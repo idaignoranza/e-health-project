@@ -150,14 +150,14 @@ class DBManager:
                 ab_v1 = []
                 string=art.researchkeys.lower()
                 string = re.sub(r'[.,"\'?:!;_]', '', string)
-                string_v = string.split()
+
                 for word in ab_v:
-                    if word in string_v:
-                        ab_v1.append(word)
+                    if (ab_v[word]==string):
+                        ab_v1.append(ab_v[word])
                 abstract_list[i] = ab_v1
 
                 for j in range(0, len(ab_v1)):
-                    if ab_v1[j] in ab:
+                    if ab_v1[j] in string_v:
                         count.append(ab.count(ab_v1[j]))
 
                 count_list[i] = count
