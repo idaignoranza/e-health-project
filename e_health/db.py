@@ -128,3 +128,41 @@ class DBManager:
     def close(self):
         self.cursor.close()
         self.connection.close()
+
+    # Counting of the words in the abstract based on the string
+    def count_word(self, article_list):
+        import re
+        import numpy as np
+
+        import nltk
+        nltk.download("stopwords")
+        sw = nltk.corpus.stopwords.words('english')
+
+        abstract_list = [None for _ in range(len(article_list))]
+        count_list = [None for _ in range(len(article_list))]
+        i = 0
+        for art in article_list:
+            count = []
+            if art.abstract != None:
+                ab = art.abstract.lower()  # metto l'abstract minuscolo
+                ab = re.sub(r'[.,"\'?:!;_]', '', ab)  # per rimuovere punteggiatura
+                ab_v = ab.split()
+                ab_v1 = []
+                string=art.researchkeys.lower()
+                string = re.sub(r'[.,"\'?:!;_]', '', string)
+                string_v = string.split()
+                for word in ab_v:
+                    if word in string_v:
+                        ab_v1.append(word)
+                abstract_list[i] = ab_v1
+
+                for j in range(0, len(ab_v1)):
+                    if ab_v1[j] in ab:
+                        count.append(ab.count(ab_v1[j]))
+
+                count_list[i] = count
+                i = i + 1
+        for k in range (0,len(abstract_list)):
+            print(abstract_list[k])
+            print(count_list[k])
+

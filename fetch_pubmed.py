@@ -57,6 +57,7 @@ for result in results:
                            "\ndoi:", article.doi,
                            "\ndate:", article.pub_date,
                            "\nauthors:", article.authors,
+                           "\nabstract:", article.abstract,
                             "\nresearchkeys:", article.researchkeys
                            )
 
@@ -67,6 +68,7 @@ for result in results:
         if x.doi == result.doi:
             new_researchkeys = x.researchkeys+', '+sel
             print(new_researchkeys)
+
 
             db.update_task((new_researchkeys, x.pubmed_id))
             duplicate = 1
@@ -88,41 +90,6 @@ print("db contains", len(db.get_articles()), "articles")
 
 # contiamo quante volte compaiono le parole chiave
 
-article_list = db.get_articles()
-
-keyword_list1 = ['kid','kids','child','children','infant','baby','babies','infants','childhood']
-keyword_list2 = ['serious game','serious games','serious video games','serious video game','serious videogames','serious videogame']
-keyword_list3 = ['adhd','attention deficit hyperactivity disorder','cognitive','cognitive disorder','cognitive disorders']
-
-import re
-
-count_list1 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-count_list2 = [0, 0, 0, 0, 0, 0]
-count_list3 = [0, 0, 0, 0, 0]
-
-for art in article_list:
-    if art.abstract != None:
-        ab = art.abstract.lower() #metto l'abstract minuscolo
-        ab = re.sub(r'[.,"\'?:!;]', '', ab)  # per rimuovere punteggiatura
-
-        for i in range(0, len(keyword_list1)):
-            if keyword_list1[i] in ab:
-                count_list1[i] = ab.count(keyword_list1[i])
-
-        for j in range(0, len(keyword_list2)):
-            if keyword_list2[j] in ab:
-                count_list2[j] = ab.count(keyword_list2[j])
-
-        for k in range(0, len(keyword_list3)):
-            if keyword_list3[k] in ab:
-                count_list3[k] = ab.count(keyword_list3[k])
-
-
-        if sum(count_list1)>0 and sum(count_list2)>0 and sum(count_list3)>0:
-            print('RELEVANT ARTICLE (',art.title,')')
-
-count_list1 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-count_list2 = [0, 0, 0, 0, 0, 0]
-count_list3 = [0, 0, 0, 0, 0]
+db.count_word(articles)
 
 db.close()
