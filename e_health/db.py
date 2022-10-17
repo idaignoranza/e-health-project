@@ -129,8 +129,8 @@ class DBManager:
         self.cursor.close()
         self.connection.close()
 
-    # Counting of the words in the abstract based on the string
-    def count_word(self, article_list):
+        # Counting of the words in the abstract based on the string
+    def count_word_abstract(self, article_list):
         import re
         import numpy as np
 
@@ -146,23 +146,91 @@ class DBManager:
             if art.abstract != None:
                 ab = art.abstract.lower()  # metto l'abstract minuscolo
                 ab = re.sub(r'[.,"\'?:!;_]', '', ab)  # per rimuovere punteggiatura
-                ab_v = ab.split()
                 ab_v1 = []
-                string=art.researchkeys.lower()
-                string = re.sub(r'[.,"\'?:!;_]', '', string)
+                string = art.researchkeys.lower()
+                string = re.sub(r'[.,"\'?:!;_(){}]', '', string)
+                string = string.split()
+                str = []
 
-                for word in ab_v:
-                    if (ab_v[word]==string):
-                        ab_v1.append(ab_v[word])
+
+                for word in string:
+                    if word not in sw:
+                        str.append(word)
+
+                for k in range(0, len(str)):
+                    if str[k] in ab:
+                        ab_v1.append(str[k])
+
+                    elif str[k] not in ab:
+                        ab_v1.append(str[k])
+
+                    elif ab==None:
+                        ab_v1.append(str[k])
+
                 abstract_list[i] = ab_v1
 
                 for j in range(0, len(ab_v1)):
-                    if ab_v1[j] in string_v:
+                    if ab_v1[j] in string:
                         count.append(ab.count(ab_v1[j]))
+
+                    elif ab_v1[j] not in string:
+                        count.append(0)
+
+                    elif ab==None:
+                        ab_v1.append(0)
 
                 count_list[i] = count
                 i = i + 1
-        for k in range (0,len(abstract_list)):
+
+        for k in range(0, len(abstract_list)):
             print(abstract_list[k])
             print(count_list[k])
 
+    #  Counting of the words in the title based on the string
+    def count_word_title(self, article_list):
+        import re
+        import numpy as np
+
+        import nltk
+        nltk.download("stopwords")
+        sw = nltk.corpus.stopwords.words('english')
+
+        title_list = [None for _ in range(len(article_list))]
+        count_list = [None for _ in range(len(article_list))]
+        i = 0
+        for art in article_list:
+            count = []
+            if art.title != None:
+                tit = art.title.lower()  # metto l'abstract minuscolo
+                tit = re.sub(r'[.,"\'?:!;_]', '', tit)  # per rimuovere punteggiatura
+                tit_v1 = []
+                string = art.researchkeys.lower()
+                string = re.sub(r'[.,"\'?:!;_(){}]', '', string)
+                string = string.split()
+                str = []
+
+                for word in string:
+                    if word not in sw:
+                        str.append(word)
+
+                for k in range(0, len(str)):
+                    if str[k] in tit:
+                        tit_v1.append(str[k])
+                    elif str[k] not in tit:
+                        msg="No word"
+                        tit_v1.append(str[k])
+
+                title_list[i] = tit_v1
+
+                for j in range(0, len(tit_v1)):
+                    if tit_v1[j] in string:
+                        count.append(tit.count(tit_v1[j]))
+                    elif tit_v1[j] not in string:
+                        count.append(0)
+
+                count_list[i] = count
+                i = i + 1
+
+        for k in range(0, len(title_list)):
+            print(title_list[k])
+            print(count_list[k])

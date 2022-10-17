@@ -83,13 +83,16 @@ db.insert_documents_and_commit(articles)
 
 
 print('\n----------------\n')
-print("db contains", len(db.get_articles()), "articles")
-
+print("Database contains", len(db.get_articles()), "articles")
 
 # ------------ SECONDA PARTE ---------------
 
-# contiamo quante volte compaiono le parole chiave
-
-db.count_word(articles)
+# Contiamo quante volte compaiono le parole chiave sia nell'abstract che nel titolo
+print('\n----------------\n')
+print("Counting the keywords in the abstract")
+db.count_word_abstract(articles)
+print('\n----------------\n')
+print("Counting the keywords in the title")
+db.count_word_title(articles)
 
 db.close()
