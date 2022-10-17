@@ -186,6 +186,19 @@ class DBManager:
             print(abstract_list[k])
             print(count_list[k])
 
+        value_ab=[]
+        for i in range(0, len(count_list)):
+            if count_list[i] != None:
+                value=float(sum(count_list[i]))
+
+            else:
+                value=0
+
+            value_ab.append(float(value))
+
+
+        return(value_ab)
+
     #  Counting of the words in the title based on the string
     def count_word_title(self, article_list):
         import re
@@ -216,8 +229,8 @@ class DBManager:
                 for k in range(0, len(str)):
                     if str[k] in tit:
                         tit_v1.append(str[k])
+
                     elif str[k] not in tit:
-                        msg="No word"
                         tit_v1.append(str[k])
 
                 title_list[i] = tit_v1
@@ -234,3 +247,17 @@ class DBManager:
         for k in range(0, len(title_list)):
             print(title_list[k])
             print(count_list[k])
+
+        value_tit=[]
+        for i in range(0, len(count_list)):
+            if count_list[i] != None:
+                value=float(sum(count_list[i]))* 0.75 #Moltiplica i valori dei singoli articoli per il peso 0.75 perchè consideriamo il titolo
+
+            else:
+                value=0
+
+            value_tit.append(float(value))
+
+
+        return(value_tit)
+
