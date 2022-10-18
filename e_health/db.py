@@ -268,3 +268,4 @@ def update_score(self,val):
                 SET SCORE = ?
                 WHERE PubmedID = ?'''
     self.cursor.execute(sql_query, val)
+    self.connection.commit()

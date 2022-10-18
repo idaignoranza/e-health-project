@@ -112,12 +112,12 @@ for i in range(0,len(somma_ab_tit)):
         score_bin.append(0)
     elif score[i]>0.5:
         score_bin.append(1)
-print(score)
-print(score_bin)
 
-for l in list:
-    for i in range(0,len(score_bin)):
-        db.update_score(score_bin[i],l.pubmed_id)
+print(score_bin)
+i=0
+for l in articles:
+    db.update_score((score_bin[i],l.pubmed_id))
+    i=i+1
 
 
 
