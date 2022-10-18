@@ -56,7 +56,7 @@ class DBManager:
             query_text = (
                 "CREATE TABLE Articles ("
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT,  PubmedID TEXT, DOI TEXT, Title TEXT, PubDate TEXT, "
-                "Authors TEXT, Abstract TEXT, ResearchKeys TEXT)"
+                "Authors TEXT, Abstract TEXT, ResearchKeys TEXT, Score TEXT)"
             )
             self.cursor.execute(query_text)
         except sqlite3.Error as e:
@@ -65,7 +65,7 @@ class DBManager:
     # Insert a new document into the database. Note: this function DOES NOT commit the query.
     def insert_document(self, doc: Article):
         try:
-            query_text = "INSERT INTO Articles (PubmedID, DOI, Title, PubDate, Authors, Abstract, ResearchKeys) VALUES (?,?,?,?,?,?,?)"
+            query_text = "INSERT INTO Articles (PubmedID, DOI, Title, PubDate, Authors, Abstract, ResearchKeys, Score) VALUES (?,?,?,?,?,?,?,?)"
             self.cursor.execute(
                 query_text,
                 [
@@ -76,6 +76,7 @@ class DBManager:
                     doc.authors,
                     doc.abstract,
                     doc.researchkeys,
+                    doc.score,
                 ],
             )
         except BaseException as e:
@@ -113,7 +114,7 @@ class DBManager:
         return list(map(self._art_from_tuple, results))
 
     def _art_from_tuple(self, t):
-        (id_, pubmed_id, doi, title, pub_date, authors, abstract, researchkeys) = t
+        (id_, pubmed_id, doi, title, pub_date, authors, abstract, researchkeys, score) = t
         return Article(
             title=title,
             pubmed_id=pubmed_id,
@@ -122,6 +123,7 @@ class DBManager:
             pub_date=pub_date,
             authors=authors,
             researchkeys=researchkeys,
+            score=score,
         )
 
     # Close the database.
@@ -129,8 +131,8 @@ class DBManager:
         self.cursor.close()
         self.connection.close()
 
-    # Counting of the words in the abstract based on the string
-    def count_word(self, article_list):
+        # Counting of the words in the abstract based on the string
+    def count_word_abstract(self, article_list):
         import re
         import numpy as np
 
@@ -147,17 +149,24 @@ class DBManager:
                 ab = art.abstract.lower()  # metto l'abstract minuscolo
                 ab = re.sub(r'[.,"\'?:!;_]', '', ab)  # per rimuovere punteggiatura
                 ab_v1 = []
-                string=art.researchkeys.lower()
+                string = art.researchkeys.lower()
                 string = re.sub(r'[.,"\'?:!;_(){}]', '', string)
-                string=string.split()
-                str=[]
+                string = string.split()
+                str = []
+
 
                 for word in string:
                     if word not in sw:
                         str.append(word)
 
-                for k in range(0,len(str)):
+                for k in range(0, len(str)):
                     if str[k] in ab:
+                        ab_v1.append(str[k])
+
+                    elif str[k] not in ab:
+                        ab_v1.append(str[k])
+
+                    elif ab==None:
                         ab_v1.append(str[k])
 
                 abstract_list[i] = ab_v1
@@ -166,9 +175,95 @@ class DBManager:
                     if ab_v1[j] in string:
                         count.append(ab.count(ab_v1[j]))
 
+                    elif ab_v1[j] not in string:
+                        count.append(0)
+
+                    elif ab==None:
+                        ab_v1.append(0)
+
                 count_list[i] = count
                 i = i + 1
-        for k in range (0,len(abstract_list)):
+
+        for k in range(0, len(abstract_list)):
             print(abstract_list[k])
             print(count_list[k])
 
+        value_ab=[]
+        for i in range(0, len(count_list)):
+            if count_list[i] != None:
+                value=float(sum(count_list[i]))
+
+            else:
+                value=0
+
+            value_ab.append(float(value))
+
+
+        return(value_ab)
+
+    #  Counting of the words in the title based on the string
+    def count_word_title(self, article_list):
+        import re
+        import numpy as np
+
+        import nltk
+        nltk.download("stopwords")
+        sw = nltk.corpus.stopwords.words('english')
+
+        title_list = [None for _ in range(len(article_list))]
+        count_list = [None for _ in range(len(article_list))]
+        i = 0
+        for art in article_list:
+            count = []
+            if art.title != None:
+                tit = art.title.lower()  # metto l'abstract minuscolo
+                tit = re.sub(r'[.,"\'?:!;_]', '', tit)  # per rimuovere punteggiatura
+                tit_v1 = []
+                string = art.researchkeys.lower()
+                string = re.sub(r'[.,"\'?:!;_(){}]', '', string)
+                string = string.split()
+                str = []
+
+                for word in string:
+                    if word not in sw:
+                        str.append(word)
+
+                for k in range(0, len(str)):
+                    if str[k] in tit:
+                        tit_v1.append(str[k])
+
+                    elif str[k] not in tit:
+                        tit_v1.append(str[k])
+
+                title_list[i] = tit_v1
+
+                for j in range(0, len(tit_v1)):
+                    if tit_v1[j] in string:
+                        count.append(tit.count(tit_v1[j]))
+                    elif tit_v1[j] not in string:
+                        count.append(0)
+
+                count_list[i] = count
+                i = i + 1
+
+        for k in range(0, len(title_list)):
+            print(title_list[k])
+            print(count_list[k])
+
+        value_tit=[]
+        for i in range(0, len(count_list)):
+            if count_list[i] != None:
+                value=float(sum(count_list[i]))* 0.75 #Moltiplica i valori dei singoli articoli per il peso 0.75 perchè consideriamo il titolo
+
+            else:
+                value=0
+
+            value_tit.append(float(value))
+
+
+        return(value_tit)
+
+    def update_score(self, val):
+        sql_query=''' UPDATE Articles SET Score = ? WHERE PubmedID = ?'''
+        self.cursor.execute(sql_query, val)
+        self.connection.commit()
