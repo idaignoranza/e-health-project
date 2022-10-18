@@ -56,7 +56,7 @@ class DBManager:
             query_text = (
                 "CREATE TABLE Articles ("
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT,  PubmedID TEXT, DOI TEXT, Title TEXT, PubDate TEXT, "
-                "Authors TEXT, Abstract TEXT, ResearchKeys TEXT)"
+                "Authors TEXT, Abstract TEXT, ResearchKeys TEXT, Score TEXT)"
             )
             self.cursor.execute(query_text)
         except sqlite3.Error as e:
@@ -65,7 +65,7 @@ class DBManager:
     # Insert a new document into the database. Note: this function DOES NOT commit the query.
     def insert_document(self, doc: Article):
         try:
-            query_text = "INSERT INTO Articles (PubmedID, DOI, Title, PubDate, Authors, Abstract, ResearchKeys) VALUES (?,?,?,?,?,?,?)"
+            query_text = "INSERT INTO Articles (PubmedID, DOI, Title, PubDate, Authors, Abstract, ResearchKeys, Score) VALUES (?,?,?,?,?,?,?,?)"
             self.cursor.execute(
                 query_text,
                 [
@@ -76,6 +76,7 @@ class DBManager:
                     doc.authors,
                     doc.abstract,
                     doc.researchkeys,
+                    doc.score,
                 ],
             )
         except BaseException as e:
@@ -113,7 +114,7 @@ class DBManager:
         return list(map(self._art_from_tuple, results))
 
     def _art_from_tuple(self, t):
-        (id_, pubmed_id, doi, title, pub_date, authors, abstract, researchkeys) = t
+        (id_, pubmed_id, doi, title, pub_date, authors, abstract, researchkeys, score) = t
         return Article(
             title=title,
             pubmed_id=pubmed_id,
@@ -122,6 +123,7 @@ class DBManager:
             pub_date=pub_date,
             authors=authors,
             researchkeys=researchkeys,
+            score=score,
         )
 
     # Close the database.
@@ -261,3 +263,8 @@ class DBManager:
 
         return(value_tit)
 
+def update_score(self,val):
+    slq_query=''' UPDATE Articles
+                SET SCORE = ?
+                WHERE PubmedID = ?'''
+    self.cursor.execute(sql_query, val)

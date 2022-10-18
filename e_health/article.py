@@ -11,6 +11,7 @@ class Article:
     abstract: Optional[str]
     pub_date: Optional[str]
     researchkeys: Optional[str]
+    score: Optional[str]
 
     def __init__(
         self,
@@ -21,6 +22,7 @@ class Article:
         pub_date: str,
         authors: List[Dict] or str,
         researchkeys: List[str],
+        score: List[str] or str,
     ):
 
         if title == "":
@@ -71,9 +73,13 @@ class Article:
             self.researchkeys = None
         else:
             self.researchkeys = researchkeys
+        if score== "":
+            self.score=None
+        else:
+            self.score=score
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        return f"(title: {self.title}, authors: {self.authors}, doi: {self.doi}, pubmed_id: {self.pubmed_id}, abstract: {self.abstract}, pub_date: {self.pub_date}, researchkeys: {self.researchkeys})"
+        return f"(title: {self.title}, authors: {self.authors}, doi: {self.doi}, pubmed_id: {self.pubmed_id}, abstract: {self.abstract}, pub_date: {self.pub_date}, researchkeys: {self.researchkeys}, score: {self.score}"

@@ -42,13 +42,14 @@ for result in results:
     pub_date = result.publication_date 
     authors = result.authors
     researchkeys = sel
+    score='-'
 
     
     
     #print("got article with title", title, "pid", pid, "doi", doi, "abstract", abstract, "pub_date", pub_date, "authors", authors, "researchkeys", sel)
     article = e_health.article.Article(title = title, pubmed_id=pid,
                                              doi = doi, abstract = abstract,
-                                             pub_date = pub_date, authors = authors, researchkeys=sel)
+                                             pub_date = pub_date, authors = authors, researchkeys=sel, score='-')
 
 
     # print article:
@@ -59,7 +60,8 @@ for result in results:
                            "\ndate:", article.pub_date,
                            "\nauthors:", article.authors,
                            "\nabstract:", article.abstract,
-                            "\nresearchkeys:", article.researchkeys
+                            "\nresearchkeys:", article.researchkeys,
+                            "\nscore:", article.score
                            )
 
     duplicate = 0
@@ -112,6 +114,10 @@ for i in range(0,len(somma_ab_tit)):
         score_bin.append(1)
 print(score)
 print(score_bin)
+
+for l in list:
+    for i in range(0,len(score_bin)):
+        db.update_score(score_bin[i],l.pubmed_id)
 
 
 
