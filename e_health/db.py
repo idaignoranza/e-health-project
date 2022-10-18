@@ -263,9 +263,9 @@ class DBManager:
 
         return(value_tit)
 
-def update_score(self,val):
-    slq_query=''' UPDATE Articles
-                SET SCORE = ?
-                WHERE PubmedID = ?'''
-    self.cursor.execute(sql_query, val)
-    self.connection.commit()
+    def update_score(self,val):
+        slq_query=''' UPDATE Articles
+                    SET SCORE = ?
+                    WHERE PubmedID = ?'''
+        self.cursor.execute(slq_query, val)
+        self.connection.commit()
