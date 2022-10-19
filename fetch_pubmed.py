@@ -89,6 +89,8 @@ db.insert_documents_and_commit(articles)
 print('\n----------------\n')
 print("Database contains", len(db.get_articles()), "articles")
 
+
+
 # ------------ SECONDA PARTE ---------------
 
 # Contiamo quante volte compaiono le parole chiave sia nell'abstract che nel titolo
@@ -96,32 +98,49 @@ print('\n----------------\n')
 print("Counting the keywords in the abstract")
 value_ab=db.count_word_abstract(articles)
 print(value_ab)
+
 print('\n----------------\n')
 print("Counting the keywords in the title")
-value_tit=db.count_word_title(articles)
+value_tit = db.count_word_title(articles)
 print(value_tit)
+
 #Somma gli elementi degli score per abstract e titolo
 somma_ab_tit=[]
 for i in range(0,len(value_ab)):
     somma_ab_tit.append(float(value_ab[i]+value_tit[i]))
-score=[]
-score_bin=[]
+
+score = []
+score_bin = []
+
 for i in range(0,len(somma_ab_tit)):
-    val=(somma_ab_tit[i]-min(somma_ab_tit))/(max(somma_ab_tit)-min(somma_ab_tit))
+    val = (somma_ab_tit[i]-min(somma_ab_tit))/(max(somma_ab_tit)-min(somma_ab_tit))
     score.append(val)
-    if score[i]<=0.5:
+    if score[i] <= 0.5:
         score_bin.append(0)
-    elif score[i]>0.5:
+    elif score[i] > 0.5:
         score_bin.append(1)
 
 print(score_bin)
-i=0
+
+i = 0
+
 for l in articles:
     db.update_score((score_bin[i],l.pubmed_id))
     for res in results:
-        if l.pubmed_id==res.pubmed_id:
-            new_score=max(res.score,score_bin[i])
+        if l.pubmed_id == res.pubmed_id:
+            new_score = max(res.score,score_bin[i])
             db.update_task_score((new_score, l.pubmed_id))
-    i=i+1
+    i = i+1
+
+
+# Export in csv
+import pandas as pd
+
+articles = db.get_articles()
+articles_dict = [a._dict_ for a in articles ]
+df = pd.DataFrame(articles_dict)
+
+df.to_csv('data.csv', index = False)
+
 
 db.close()
