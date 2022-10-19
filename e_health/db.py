@@ -172,11 +172,9 @@ class DBManager:
                         count.append(ab.count(ab_v1[j]))
 
                     elif ab_v1[j] not in string:
-                        print('sono quiiiiiiiiiiiiiiiiiiiiiiii')
                         count.append(0)
 
                     elif ab is None:
-                        print('sono quiiiiiiiiiiiiiiiiiiiiiiii')
                         ab_v1.append(0)
 
                 count_list[i] = count
