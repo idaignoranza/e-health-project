@@ -269,3 +269,19 @@ class DBManager:
                     WHERE PubmedID = ?'''
         self.cursor.execute(slq_query, val)
         self.connection.commit()
+
+    def update_task_score(self, task):
+#       """
+#       update researchkeys of a task
+#       :param conn:
+#       :param task:
+#       :return: project id
+#       """
+
+       sql = ''' UPDATE Articles
+                 SET Score = ?
+                 WHERE PubmedID = ?'''
+
+       #cur = self.cursor()
+       self.cursor.execute(sql, task)
+       #self.commit()

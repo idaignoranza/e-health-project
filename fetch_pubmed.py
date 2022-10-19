@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 import os
+
+import pandas as pd
 from pymed import PubMed
 import e_health
 
@@ -68,9 +70,8 @@ for result in results:
 
     # Controllo duplicati:
     for x in list:
-        if x.doi == result.doi:
+        if x.pubmed_id == result.pubmed_id:
             new_researchkeys = x.researchkeys+', '+sel
-            print(new_researchkeys)
 
 
             db.update_task((new_researchkeys, x.pubmed_id))
@@ -117,8 +118,9 @@ print(score_bin)
 i=0
 for l in articles:
     db.update_score((score_bin[i],l.pubmed_id))
+    for res in results:
+        if l.pubmed_id==res.pubmed_id:
+            new_score=max(res.score,score_bin[i])
+            db.update_task_score((new_score, l.pubmed_id))
     i=i+1
 
-
-
-db.close()
