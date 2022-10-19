@@ -1,5 +1,5 @@
-# Progetto di E-Health
-## Prima parte: database e PubMed
+# E-Health
+## Database e PubMed
 Dobbiamo decidere quale database utilizzare (SQLite, MySql...), 
 al momento gli esempi che abbiamo usano SQLite.
 Una volta scelto il DB da utilizzare, dobbiamo trovare e usare una libreria

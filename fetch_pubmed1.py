@@ -44,7 +44,6 @@ for result in results:
     researchkeys = sel
     score = '-'
 
-    # print("got article with title", title, "pid", pid, "doi", doi, "abstract", abstract, "pub_date", pub_date, "authors", authors, "researchkeys", sel)
     article = e_health.article.Article(title=title, pubmed_id=pid,
                                        doi=doi, abstract=abstract,
                                        pub_date=pub_date, authors=authors, researchkeys=sel, score='-')
@@ -63,7 +62,7 @@ for result in results:
 
     duplicate = 0
 
-    # Controllo duplicati:
+    # Duplicate check:
     for x in list:
         if x.pubmed_id == result.pubmed_id:
             new_researchkeys = x.researchkeys + ', ' + sel
@@ -81,10 +80,9 @@ print('\n----------------\n')
 print("Database contains", len(db.get_articles()), "articles")
 
 
+# ------------ CLASSIFICATION ---------------
 
-# ------------ SECONDA PARTE ---------------
-
-# Contiamo quante volte compaiono le parole chiave sia nell'abstract che nel titolo
+# Count how many times the keywords appear in both the abstract and the title
 print('\n----------------\n')
 print("Counting the keywords in the abstract")
 value_ab = db.count_word_abstract(articles)
@@ -95,7 +93,7 @@ print("Counting the keywords in the title")
 value_tit = db.count_word_title(articles)
 print(value_tit)
 
-# Somma gli elementi degli score per abstract e titolo
+# Sum the elements of the scores of abstract and title
 somma_ab_tit = []
 for i in range(0, len(value_ab)):
     somma_ab_tit.append(float(value_ab[i] + value_tit[i]))
@@ -123,8 +121,8 @@ for l in articles:
             db.update_task_score((new_score, l.pubmed_id))
     i = i + 1
 
-# Export in csv
-import pandas as pd
+
+# Export file in csv
 
 articles = db.get_articles()
 articles_dict = [a.__dict__ for a in articles]

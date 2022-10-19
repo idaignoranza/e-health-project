@@ -86,10 +86,9 @@ print('\n----------------\n')
 print("Database contains", len(db.get_articles()), "articles")
 
 
-
 # ------------ SECONDA PARTE ---------------
 
-new_list=db.get_articles()
+new_list = db.get_articles()
 
 # Contiamo quante volte compaiono le parole chiave sia nell'abstract che nel titolo
 print('\n----------------\n')

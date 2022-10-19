@@ -73,10 +73,10 @@ class Article:
             self.researchkeys = None
         else:
             self.researchkeys = researchkeys
-        if score== "":
-            self.score=None
+        if score == "":
+            self.score = None
         else:
-            self.score=score
+            self.score = score
 
     def __repr__(self):
         return self.__str__()

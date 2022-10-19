@@ -1,6 +1,9 @@
 
 import sqlite3
 from typing import List
+import re
+import numpy as np
+import nltk
 
 from e_health.article import Article
 
@@ -16,8 +19,6 @@ class DBManager:
     #
     # connection
     # cursor
-
-    # self = puntatore all'oggetto stesso --> riferimento a se stesso
 
     def __init__(self, db_path: str):
         self.db_path = db_path
@@ -88,8 +89,7 @@ class DBManager:
             self.insert_document(doc)
         self.connection.commit()
 
-
-    # Modify parameters of database.
+    # Update parameters of database.
     def update_task(self, task):
 #       """
 #       update researchkeys of a task
@@ -106,13 +106,13 @@ class DBManager:
        self.cursor.execute(sql, task)
        #self.commit()
 
-
     # Get the list of articles from the database.
     def get_articles(self):
         self.cursor.execute("select * from Articles")
         results = self.cursor.fetchall()
         return list(map(self._art_from_tuple, results))
 
+    # Get information about the tuples in the database.
     def _art_from_tuple(self, t):
         (id_, pubmed_id, doi, title, pub_date, authors, abstract, researchkeys, score) = t
         return Article(
@@ -131,43 +131,39 @@ class DBManager:
         self.cursor.close()
         self.connection.close()
 
-        # Counting of the words in the abstract based on the string
+    # Count the words in the abstract based on the string.
     def count_word_abstract(self, article_list):
-        import re
-        import numpy as np
 
-        import nltk
         nltk.download("stopwords")
         sw = nltk.corpus.stopwords.words('english')
 
         abstract_list = [None for _ in range(len(article_list))]
         count_list = [None for _ in range(len(article_list))]
         i = 0
+
         for art in article_list:
             count = []
-            if art.abstract != None:
-                ab = art.abstract.lower()  # metto l'abstract minuscolo
-                ab = re.sub(r'[.,"\'?:!;_]', '', ab)  # per rimuovere punteggiatura
+
+            if art.abstract is not None:
+                # lowercase the abstract
+                ab = art.abstract.lower()
+                # remove punctuation
+                ab = re.sub(r'[.,"\'?:!;_]', '', ab)
+
                 ab_v1 = []
+
                 string = art.researchkeys.lower()
                 string = re.sub(r'[.,"\'?:!;_(){}]', '', string)
                 string = string.split()
-                str = []
 
+                str = []
 
                 for word in string:
                     if word not in sw:
                         str.append(word)
 
                 for k in range(0, len(str)):
-                    if str[k] in ab:
-                        ab_v1.append(str[k])
-
-                    elif str[k] not in ab:
-                        ab_v1.append(str[k])
-
-                    elif ab==None:
-                        ab_v1.append(str[k])
+                    ab_v1.append(str[k])
 
                 abstract_list[i] = ab_v1
 
@@ -176,9 +172,11 @@ class DBManager:
                         count.append(ab.count(ab_v1[j]))
 
                     elif ab_v1[j] not in string:
+                        print('sono quiiiiiiiiiiiiiiiiiiiiiiii')
                         count.append(0)
 
-                    elif ab==None:
+                    elif ab is None:
+                        print('sono quiiiiiiiiiiiiiiiiiiiiiiii')
                         ab_v1.append(0)
 
                 count_list[i] = count
@@ -188,36 +186,39 @@ class DBManager:
             print(abstract_list[k])
             print(count_list[k])
 
-        value_ab=[]
+        value_ab = []
+
         for i in range(0, len(count_list)):
             if count_list[i] != None:
-                value=float(sum(count_list[i]))
+                value = float(sum(count_list[i]))
 
             else:
-                value=0
+                value = 0
 
             value_ab.append(float(value))
 
-
         return(value_ab)
 
-    #  Counting of the words in the title based on the string
+    #  Count the words in the title based on the string
     def count_word_title(self, article_list):
-        import re
-        import numpy as np
 
-        import nltk
         nltk.download("stopwords")
         sw = nltk.corpus.stopwords.words('english')
 
         title_list = [None for _ in range(len(article_list))]
         count_list = [None for _ in range(len(article_list))]
         i = 0
+
         for art in article_list:
             count = []
-            if art.title != None:
-                tit = art.title.lower()  # metto l'abstract minuscolo
-                tit = re.sub(r'[.,"\'?:!;_]', '', tit)  # per rimuovere punteggiatura
+
+            if art.title is not None:
+                # lowercase the abstract
+                tit = art.title.lower()
+
+                # remove punctuation
+                tit = re.sub(r'[.,"\'?:!;_]', '', tit)
+
                 tit_v1 = []
                 string = art.researchkeys.lower()
                 string = re.sub(r'[.,"\'?:!;_(){}]', '', string)
@@ -250,26 +251,30 @@ class DBManager:
             print(title_list[k])
             print(count_list[k])
 
-        value_tit=[]
+        value_tit = []
+
         for i in range(0, len(count_list)):
             if count_list[i] != None:
-                value=float(sum(count_list[i]))* 0.75 #Moltiplica i valori dei singoli articoli per il peso 0.75 perchè consideriamo il titolo
+
+                # Multiply the values of the single articles by the weight 0.75 because we consider the title
+                value = float(sum(count_list[i]))* 0.75
 
             else:
-                value=0
+                value = 0
 
             value_tit.append(float(value))
 
-
         return(value_tit)
 
-    def update_score(self,val):
-        slq_query=''' UPDATE Articles
-                    SET SCORE = ?
-                    WHERE PubmedID = ?'''
+    # Update the parameter "Score" of database at the fist research
+    def update_score(self, val):
+        slq_query = ''' UPDATE Articles
+                        SET SCORE = ?
+                        WHERE PubmedID = ?'''
         self.cursor.execute(slq_query, val)
         self.connection.commit()
 
+    # Update the parameter "Score" of database at the fist research
     def update_task_score(self, task):
 #       """
 #       update researchkeys of a task
