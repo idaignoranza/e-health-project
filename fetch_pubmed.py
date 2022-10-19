@@ -124,3 +124,4 @@ for l in articles:
             db.update_task_score((new_score, l.pubmed_id))
     i=i+1
 
+db.close()
