@@ -124,3 +124,11 @@ for l in articles:
             db.update_task_score((new_score, l.pubmed_id))
     i=i+1
 
+# Export in csv
+import pandas as pd
+
+articles = db.get_articles()
+articles_dict = [a._dict_ for a in articles ]
+df = pd.DataFrame(articles_dict)
+
+df.to_csv('data.csv', index = False)
