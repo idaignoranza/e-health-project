@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional
+import re
 
 
 class Article:
@@ -21,8 +22,8 @@ class Article:
         abstract: str,
         pub_date: str,
         authors: List[Dict] or str,
-        researchkeys: List[str],
-        score: List[str] or str,
+        researchkeys: str,
+        score: str,
     ):
 
         if title == "":
@@ -77,6 +78,50 @@ class Article:
             self.score = None
         else:
             self.score = score
+
+
+    # Count how many times the given word `word` appears in the abstract;
+    # return 0 if the article has no abstract.
+    def count_in_abstract(self, word: str):
+
+        if self.abstract is None:
+            return 0
+
+        # lowercase the abstract
+        abstract = self.abstract.lower()
+
+        # remove punctuation
+        abstract = re.sub(r'[.,"\'?:!;_-]', " ", abstract)
+
+        count = self.abstract.count(word)
+        # print("article", self.title, "contains", word, "in abs", count, "times")
+        return count
+
+    # Count how many times the given word `word` appears in the title;
+    # return 0 if the article has no title.
+    def count_in_title(self, word: str):
+
+        if self.title is None:
+            return 0
+
+        # lowercase the title
+        title = self.title.lower()
+
+        # remove punctuation
+        title = re.sub(r'[.,"\'?:!;_-]', " ", title)
+
+        count = title.count(word)
+        # print("article", self.title, "contains", word, "in title", count, "times")
+        return count
+
+    def get_keys(self):
+        if self.researchkeys is None:
+            return []
+
+        keys = self.researchkeys.lower()
+        keys = re.sub(r'[.,"\'?:!;_(){}]', "", keys)
+        keys = keys.split()
+        return keys
 
     def __repr__(self):
         return self.__str__()

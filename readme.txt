@@ -19,6 +19,7 @@
         The internal representation of the article.
         We decided to include in this class the attributes title (str), doi (str), pubmed_id (str), abstract (str), pub_date (str),
         authors (List[Dict] or str), researchkeys (List[str]), score (List[str] or str).
+        DA AGGIUSTARE CON LE AGGIUNTE !!!!!!
 
     + e_health/db.py
         An helper class used to interact with the underlying DB (in particular, we chose sqlite).
@@ -31,10 +32,8 @@
         - insert_documents_and_commit: to insert a list of document into the database and commit;
         - update_task: to update parameters of database;
         - get_articles: to get the list of articles from the database;
-        - _art_from_tuple: to get information about the tuples in the database
+        - _art_from_tuple: to get information about the tuples in the database !!!!!!
         - close: to close the database;
-        - count_word_abstract: to count the words in the abstract based on the string;
-        - count_word_title: to count the words in the title based on the string;
         - update_score: to update the parameter "Score" of database at the fist research;
         - update_task_score: to update the parameter "Score" of database.
 

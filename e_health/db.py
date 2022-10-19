@@ -1,10 +1,5 @@
-
 import sqlite3
 from typing import List
-import re
-import numpy as np
-import nltk
-
 from e_health.article import Article
 
 
@@ -91,20 +86,20 @@ class DBManager:
 
     # Update parameters of database.
     def update_task(self, task):
-#       """
-#       update researchkeys of a task
-#       :param conn:
-#       :param task:
-#       :return: project id
-#       """
+        #       """
+        #       update researchkeys of a task
+        #       :param conn:
+        #       :param task:
+        #       :return: project id
+        #       """
 
-       sql = ''' UPDATE Articles
+        sql = """ UPDATE Articles
                  SET ResearchKeys = ?
-                 WHERE PubmedID = ?'''
+                 WHERE PubmedID = ?"""
 
-       #cur = self.cursor()
-       self.cursor.execute(sql, task)
-       #self.commit()
+        # cur = self.cursor()
+        self.cursor.execute(sql, task)
+        # self.commit()
 
     # Get the list of articles from the database.
     def get_articles(self):
@@ -114,7 +109,17 @@ class DBManager:
 
     # Get information about the tuples in the database.
     def _art_from_tuple(self, t):
-        (id_, pubmed_id, doi, title, pub_date, authors, abstract, researchkeys, score) = t
+        (
+            _,
+            pubmed_id,
+            doi,
+            title,
+            pub_date,
+            authors,
+            abstract,
+            researchkeys,
+            score,
+        ) = t
         return Article(
             title=title,
             pubmed_id=pubmed_id,
@@ -131,160 +136,27 @@ class DBManager:
         self.cursor.close()
         self.connection.close()
 
-    # Count the words in the abstract based on the string.
-    def count_word_abstract(self, article_list):
-
-        nltk.download("stopwords")
-        sw = nltk.corpus.stopwords.words('english')
-
-        abstract_list = [None for _ in range(len(article_list))]
-        count_list = [None for _ in range(len(article_list))]
-        i = 0
-
-        for art in article_list:
-            count = []
-
-            if art.abstract is not None:
-                # lowercase the abstract
-                ab = art.abstract.lower()
-                # remove punctuation
-                ab = re.sub(r'[.,"\'?:!;_]', '', ab)
-
-                ab_v1 = []
-
-                string = art.researchkeys.lower()
-                string = re.sub(r'[.,"\'?:!;_(){}]', '', string)
-                string = string.split()
-
-                str = []
-
-                for word in string:
-                    if word not in sw:
-                        str.append(word)
-
-                for k in range(0, len(str)):
-                    ab_v1.append(str[k])
-
-                abstract_list[i] = ab_v1
-
-                for j in range(0, len(ab_v1)):
-                    if ab_v1[j] in string:
-                        count.append(ab.count(ab_v1[j]))
-
-                    elif ab_v1[j] not in string:
-                        count.append(0)
-
-                    elif ab is None:
-                        ab_v1.append(0)
-
-                count_list[i] = count
-                i = i + 1
-
-        for k in range(0, len(abstract_list)):
-            print(abstract_list[k])
-            print(count_list[k])
-
-        value_ab = []
-
-        for i in range(0, len(count_list)):
-            if count_list[i] != None:
-                value = float(sum(count_list[i]))
-
-            else:
-                value = 0
-
-            value_ab.append(float(value))
-
-        return(value_ab)
-
-    #  Count the words in the title based on the string
-    def count_word_title(self, article_list):
-
-        nltk.download("stopwords")
-        sw = nltk.corpus.stopwords.words('english')
-
-        title_list = [None for _ in range(len(article_list))]
-        count_list = [None for _ in range(len(article_list))]
-        i = 0
-
-        for art in article_list:
-            count = []
-
-            if art.title is not None:
-                # lowercase the abstract
-                tit = art.title.lower()
-
-                # remove punctuation
-                tit = re.sub(r'[.,"\'?:!;_]', '', tit)
-
-                tit_v1 = []
-                string = art.researchkeys.lower()
-                string = re.sub(r'[.,"\'?:!;_(){}]', '', string)
-                string = string.split()
-                str = []
-
-                for word in string:
-                    if word not in sw:
-                        str.append(word)
-
-                for k in range(0, len(str)):
-                    if str[k] in tit:
-                        tit_v1.append(str[k])
-
-                    elif str[k] not in tit:
-                        tit_v1.append(str[k])
-
-                title_list[i] = tit_v1
-
-                for j in range(0, len(tit_v1)):
-                    if tit_v1[j] in string:
-                        count.append(tit.count(tit_v1[j]))
-                    elif tit_v1[j] not in string:
-                        count.append(0)
-
-                count_list[i] = count
-                i = i + 1
-
-        for k in range(0, len(title_list)):
-            print(title_list[k])
-            print(count_list[k])
-
-        value_tit = []
-
-        for i in range(0, len(count_list)):
-            if count_list[i] != None:
-
-                # Multiply the values of the single articles by the weight 0.75 because we consider the title
-                value = float(sum(count_list[i]))* 0.75
-
-            else:
-                value = 0
-
-            value_tit.append(float(value))
-
-        return(value_tit)
-
     # Update the parameter "Score" of database at the fist research
     def update_score(self, val):
-        slq_query = ''' UPDATE Articles
+        slq_query = """ UPDATE Articles
                         SET SCORE = ?
-                        WHERE PubmedID = ?'''
+                        WHERE PubmedID = ?"""
         self.cursor.execute(slq_query, val)
         self.connection.commit()
 
     # Update the parameter "Score" of database at the fist research
     def update_task_score(self, task):
-#       """
-#       update researchkeys of a task
-#       :param conn:
-#       :param task:
-#       :return: project id
-#       """
+        #       """
+        #       update researchkeys of a task
+        #       :param conn:
+        #       :param task:
+        #       :return: project id
+        #       """
 
-       sql = ''' UPDATE Articles
+        sql = """ UPDATE Articles
                  SET Score = ?
-                 WHERE PubmedID = ?'''
+                 WHERE PubmedID = ?"""
 
-       #cur = self.cursor()
-       self.cursor.execute(sql, task)
-       #self.commit()
+        # cur = self.cursor()
+        self.cursor.execute(sql, task)
+        # self.commit()
