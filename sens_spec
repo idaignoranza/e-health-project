@@ -1,0 +1,156 @@
+db_path = "data/data.db"
+db = e_health.db.DBManager(db_path)
+print("Connecting to", db_path)
+
+
+# Check if table and database exists
+if os.path.exists(db_path) and db.check_exists():
+    reset = input("The database already exists! Do you want to reset it? [Y/n] ")
+    if reset.upper() == 'Y':
+        db.delete_table()
+        db.create_table()
+else:
+    db.create_table()
+
+
+# # Fetch articles
+pubmed = PubMed()
+print("----------")
+sel = input("Insert the term that you want to find: ")
+# keyboard input
+num = input("Insert how many articles do you want to find: ")
+results = pubmed.query(sel, max_results=int(num))
+print("----------")
+
+# # Populate the database
+
+articles = []
+list = db.get_articles()
+
+for result in results:
+    title = result.title
+    pid = result.pubmed_id
+    doi = result.doi
+    abstract = result.abstract
+    pub_date = result.publication_date 
+    authors = result.authors
+    researchkeys = sel
+    score='-'
+
+    
+    
+    #print("got article with title", title, "pid", pid, "doi", doi, "abstract", abstract, "pub_date", pub_date, "authors", authors, "researchkeys", sel)
+    article = e_health.article.Article(title = title, pubmed_id=pid,
+                                             doi = doi, abstract = abstract,
+                                             pub_date = pub_date, authors = authors, researchkeys=sel, score='-')
+
+
+    # print article:
+    print('\n----------------\n')
+    print("made article:", "\ntitle:", article.title,
+                           "\npubmed id:", article.pubmed_id,
+                           "\ndoi:", article.doi,
+                           "\ndate:", article.pub_date,
+                           "\nauthors:", article.authors,
+                           "\nabstract:", article.abstract,
+                            "\nresearchkeys:", article.researchkeys,
+                            "\nscore:", article.score
+                           )
+
+    duplicate = 0
+
+    # Controllo duplicati:
+    for x in list:
+        if x.doi == result.doi:
+            new_researchkeys = x.researchkeys+', '+sel
+            print(new_researchkeys)
+
+
+            db.update_task((new_researchkeys, x.pubmed_id))
+            duplicate = 1
+
+
+    if duplicate == 0:
+        # append article:
+        articles.append(article)
+
+
+db.insert_documents_and_commit(articles)
+
+
+print('\n----------------\n')
+print("Database contains", len(db.get_articles()), "articles")
+
+# ------------ SECONDA PARTE ---------------
+
+# Contiamo quante volte compaiono le parole chiave sia nell'abstract che nel titolo
+print('\n----------------\n')
+print("Counting the keywords in the abstract")
+value_ab=db.count_word_abstract(articles)
+print(value_ab)
+print('\n----------------\n')
+print("Counting the keywords in the title")
+value_tit=db.count_word_title(articles)
+print(value_tit)
+#Somma gli elementi degli score per abstract e titolo
+somma_ab_tit=[]
+for i in range(0,len(value_ab)):
+    somma_ab_tit.append(float(value_ab[i]+value_tit[i]))
+score=[]
+score_bin=[]
+for i in range(0,len(somma_ab_tit)):
+    val=(somma_ab_tit[i]-min(somma_ab_tit))/(max(somma_ab_tit)-min(somma_ab_tit))
+    score.append(val)
+    if score[i]<=0.45:
+        score_bin.append(0)
+    elif score[i]>0.45:
+        score_bin.append(1)
+print(score)
+print(score_bin)
+
+i=0
+for l in articles:
+  db.update_score((score_bin[i], l.pubmed_id))
+  i=i+1
+
+db.save_to_csv()
+print("----------")
+
+# ----------------------------------------------------------------
+# CLASSIFICAZIONE
+
+df=pd.read_csv('database.csv', index_col=0)
+#print(df)
+
+df1=pd.read_csv('stringa.csv', index_col=0)
+df1=df1.fillna(0)
+#print(df1)
+
+df2=df.join(df1, on='PubmedID', how='inner')#, lsuffix='', rsuffix='', sort=False, validate=None)
+
+count_TP=0
+count_TN=0
+count_FP=0
+count_FN=0
+ind=[]
+for i in range(0,len(df2.index)):
+    ind.append(i)
+df2.index=ind
+#print(df2)
+
+for i in range(0,len(df2.index)):
+    if df2.loc[i]['Score']==0 and df2.loc[i]['Score1']==1:
+        count_FN=count_FN+1
+    elif df2.loc[i]['Score']==1 and df2.loc[i]['Score1']==0:
+        count_FP = count_FP + 1
+    elif df2.loc[i]['Score']==1 and df2.loc[i]['Score1']==1:
+        count_TP = count_TP + 1
+    elif df2.loc[i]['Score']==0 and df2.loc[i]['Score1']==0:
+        count_TN = count_TN + 1
+
+print(count_FN,count_FP,count_TN,count_TP)
+sens=float(count_TP)/float(count_TP+count_FN)
+spec=float(count_TN)/float(count_TN+count_FP)
+print('Specificity=',spec)
+print('Sensitivity=',sens)
+db.close()
