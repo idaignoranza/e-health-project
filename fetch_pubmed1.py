@@ -80,6 +80,8 @@ db.insert_documents_and_commit(articles)
 print('\n----------------\n')
 print("Database contains", len(db.get_articles()), "articles")
 
+
+
 # ------------ SECONDA PARTE ---------------
 
 # Contiamo quante volte compaiono le parole chiave sia nell'abstract che nel titolo
