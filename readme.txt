@@ -23,6 +23,7 @@
 
     + e_health/db.py
         An helper class used to interact with the underlying DB (in particular, we chose sqlite).
+        As first, we define the connection to the database
         This class includes useful functions to manipulate the db:
         - delete_table: to delete completely the db;
         - check_exists: to check if a table exists;
@@ -31,11 +32,11 @@
         - insert_document: to insert a document into the database;
         - insert_documents_and_commit: to insert a list of document into the database and commit;
         - update_task: to update parameters of database;
-        - get_articles: to get the list of articles from the database;
-        - _art_from_tuple: to get information about the tuples in the database !!!!!!
-        - close: to close the database;
         - update_score: to update the parameter "Score" of database at the fist research;
-        - update_task_score: to update the parameter "Score" of database.
+        - update_task_score: to update the parameter "Score" of database;
+        - get_articles: to get the articles saved in the db as a list;
+        - _art_from_tuple: to represent a row of the Articles table in the db
+        - close: to close the database;
 
     + fetch_pubmed.py
         This script is the core of this part of the project.

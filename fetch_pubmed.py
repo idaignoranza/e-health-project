@@ -3,9 +3,12 @@
 import os
 
 import pandas as pd
+import sens as sens
 from pymed import PubMed
 import e_health
 import nltk
+import pandas as pd
+import numpy as np
 
 # Connect to the database
 db_path = "data/data.db"
@@ -158,36 +161,67 @@ value_tit = [(float(sum(tit_count)) * 0.75) for tit_count in title_count_list]
 somma_ab_tit = []
 for i in range(0, len(value_ab)):
     somma_ab_tit.append(float(value_ab[i] + value_tit[i]))
+print("somma_ab_tit....................................................")
+print(somma_ab_tit)
+
+#####################################################################
 
 # print(somma_ab_tit)
 score = []
-score_bin = []
+
+thresh = np.linspace(0, 1, num=21)
+print("thresh....................................................")
+print(thresh)
+
+score_bin = [[] for _ in thresh]
+print("score_bin.................................................")
+print(score_bin)
+print("\n \n \n ")
 
 for i in range(0, len(somma_ab_tit)):
     val = (somma_ab_tit[i] - min(somma_ab_tit)) / (
         max(somma_ab_tit) - min(somma_ab_tit)
     )
     score.append(val)
-    if score[i] <= 0.5:
-        score_bin.append(0)
-    elif score[i] > 0.5:
-        score_bin.append(1)
+    print("score.................................................")
+    print(score)
+    print("\n \n \n ")
 
-print(score_bin)
+    for j in range(0, len(thresh)):
+        if score[i] <= thresh[j]:
+            score_bin[j].append(0)
+        elif score[i] > thresh[j]:
+            score_bin[j].append(1)
+
+spec = [None for _ in score_bin]  # specificity vector
+
+df1 = pd.read_csv('strings.csv', index_col=0)
+df1 = df1.fillna(0)
+print(df1)
+
+
+
+for k in range(0, len(score_bin)):
+    print('THRESHOLD = ', round(thresh[k], 2), '\n')
+    print("score_bin.................................................")
+    print(score_bin[k])
+    print("\n \n \n ")
 
 i = 0
 
-for l in articles:
-    db.update_score((score_bin[i], l.pubmed_id))
-    for res in results:
-        if l.pubmed_id == res.pubmed_id:
-            new_score = max(res.score, score_bin[i])
-            db.update_task_score((new_score, l.pubmed_id))
-    i = i + 1
+print(score)
 
+#for l in articles:
+#    print(score_bin[i])
+#    db.update_score((score_bin[k][i], l.pubmed_id))
+#    for res in results:
+#        if l.pubmed_id == res.pubmed_id:
+#             new_score = max(res.score, score_bin[k][i])
+#             db.update_task_score((new_score, l.pubmed_id))
+#
+#    i = i + 1
 
 # Export in csv
-import pandas as pd
 
 articles = db.get_articles()
 articles_dict = [a.__dict__ for a in articles]
@@ -195,4 +229,133 @@ df = pd.DataFrame(articles_dict)
 
 df.to_csv("data/data.csv", index=False)
 
+##########
+
+df = pd.read_csv('data/data.csv', index_col=0)
+print(df)
+
+df1 = pd.read_csv('strings.csv', index_col=0)
+df1 = df1.fillna(0)
+print(df1)
+
+df2 = df.join(df1, on='pubmed_id', how='inner') #, lsuffix='', rsuffix='', sort=False, validate=None)
+print(df2)
+
+count_TP = 0
+count_TN = 0
+count_FP = 0
+count_FN = 0
+ind = []
+
+for i in range(0, len(df2.index)):
+    ind.append(i)
+df2.index = ind
+#print(df2)
+
+for i in range(0, len(df2.index)):
+    if df2.loc[i]['score'] == 0 and df2.loc[i]['Score1'] == 1:
+        count_FN = count_FN + 1
+    elif df2.loc[i]['score'] == 1 and df2.loc[i]['Score1'] == 0:
+        count_FP = count_FP + 1
+    elif df2.loc[i]['score'] == 1 and df2.loc[i]['Score1'] == 1:
+        count_TP = count_TP + 1
+    elif df2.loc[i]['score'] == 0 and df2.loc[i]['Score1'] == 0:
+        count_TN = count_TN + 1
+#print(count_FN,count_FP,count_TN,count_TP)
+
+sens[k] = float(count_TP)/float(count_TP + count_FN)
+spec[k] = float(count_TN)/float(count_TN + count_FP)
+print('Specificity=', spec[k])
+print('Sensitivity=', sens[k])
+print("-------------")
+
+
 db.close()
+
+
+##----------------------------------------------------------
+## print(somma_ab_tit)
+## print(somma_ab_tit)
+#score = []
+#thresh = np.linspace(0, 1, num=21)
+#score_bin = [[] for _ in thresh]
+#
+#for i in range(0, len(somma_ab_tit)):
+#    val = (somma_ab_tit[i] - min(somma_ab_tit)) / (
+#        max(somma_ab_tit) - min(somma_ab_tit)
+#    )
+#    score.append(val)
+#    for j in range(0,len(thresh)):
+#        if score[i] <= thresh[j]:
+#            score_bin[j].append(0)
+#        elif score[i] > thresh[j]:
+#            score_bin[j].append(1)
+#
+#sens = [None for _ in score_bin]  # sensitivity vector
+#spec = [None for _ in score_bin]  # specificity vector
+#for k in range(0, len(score_bin)):
+#    print('THRESHOLD = ', round(thresh[k],2),'\n')
+#    print(score_bin[k])
+#
+#i = 0
+#
+##----------------------------------------------------------
+#
+#for l in articles:
+#    db.update_score((score_bin[i], l.pubmed_id))
+#    for res in results:
+#        if l.pubmed_id == res.pubmed_id:
+#            new_score = max(res.score, score_bin[i])
+#            db.update_task_score((new_score, l.pubmed_id))
+#    i = i + 1
+#
+#
+## Export in csv
+#
+#articles = db.get_articles()
+#articles_dict = [a.__dict__ for a in articles]
+#df = pd.DataFrame(articles_dict)
+#
+#df.to_csv("data/data.csv", index=False)
+#
+##----------------------------------------------------------
+## Compare manual training and classification
+#df = pd.read_csv('data/data.csv', index_col=0)
+## print(df)
+#
+#df1 = pd.read_csv('strings.csv', index_col=0)
+#df1 = df1.fillna(0)
+## print(df1)
+#
+#df2 = df.join(df1, on='pubmed_id', how='inner')  # , lsuffix='', rsuffix='', sort=False, validate=None)
+#
+#count_TP = 0
+#count_TN = 0
+#count_FP = 0
+#count_FN = 0
+#ind = []
+#for i in range(0, len(df2.index)):
+#    ind.append(i)
+#df2.index = ind
+## print(df2)
+#
+#for i in range(0, len(df2.index)):
+#    if df2.loc[i]['score'] == 0 and df2.loc[i]['Score1'] == 1:
+#        count_FN = count_FN + 1
+#    elif df2.loc[i]['score'] == 1 and df2.loc[i]['Score1'] == 0:
+#        count_FP = count_FP + 1
+#    elif df2.loc[i]['score'] == 1 and df2.loc[i]['Score1'] == 1:
+#        count_TP = count_TP + 1
+#    elif df2.loc[i]['score'] == 0 and df2.loc[i]['Score1'] == 0:
+#        count_TN = count_TN + 1
+#
+## print(count_FN,count_FP,count_TN,count_TP)
+#sens[k] = float(count_TP) / float(count_TP + count_FN)
+#spec[k] = float(count_TN) / float(count_TN + count_FP)
+#print('Specificity=', spec[k])
+#print('Sensitivity=', sens[k])
+#print("-------------")
+##----------------------------------------------------------
+#
+#
+#db.close()

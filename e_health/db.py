@@ -101,13 +101,47 @@ class DBManager:
         self.cursor.execute(sql, task)
         # self.commit()
 
-    # Get the list of articles from the database.
+    # Update the parameter "Score" of database at the fist research
+    def update_score(self, task):
+        #       """
+        #       update researchkeys of a task
+        #       :param conn:
+        #       :param task:
+        #       :return: project id
+        #       """
+
+        sql = """ UPDATE Articles
+                 SET ResearchKeys = ?
+                 WHERE PubmedID = ?"""
+
+        # cur = self.cursor()
+        self.cursor.execute(sql, task)
+        self.connection.commit()
+
+    # Update the parameter "Score" of database at the fist research
+    def update_task_score(self, task):
+        #       """
+        #       update researchkeys of a task
+        #       :param conn:
+        #       :param task:
+        #       :return: project id
+        #       """
+
+        sql = """ UPDATE Articles
+                 SET Score = ?
+                 WHERE PubmedID = ?"""
+
+        # cur = self.cursor()
+        self.cursor.execute(sql, task)
+        self.connection.commit()
+
+    # Get the articles saved in the db as a list
     def get_articles(self):
         self.cursor.execute("select * from Articles")
         results = self.cursor.fetchall()
         return list(map(self._art_from_tuple, results))
 
-    # Get information about the tuples in the database.
+    # Represent a row of the Articles table in the db
     def _art_from_tuple(self, t):
         (
             _,
@@ -136,27 +170,3 @@ class DBManager:
         self.cursor.close()
         self.connection.close()
 
-    # Update the parameter "Score" of database at the fist research
-    def update_score(self, val):
-        slq_query = """ UPDATE Articles
-                        SET SCORE = ?
-                        WHERE PubmedID = ?"""
-        self.cursor.execute(slq_query, val)
-        self.connection.commit()
-
-    # Update the parameter "Score" of database at the fist research
-    def update_task_score(self, task):
-        #       """
-        #       update researchkeys of a task
-        #       :param conn:
-        #       :param task:
-        #       :return: project id
-        #       """
-
-        sql = """ UPDATE Articles
-                 SET Score = ?
-                 WHERE PubmedID = ?"""
-
-        # cur = self.cursor()
-        self.cursor.execute(sql, task)
-        # self.commit()
