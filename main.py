@@ -169,6 +169,9 @@ for (pid, count) in count_sums.items():
 
 sens = {}  # sensitivity dictionary
 spec = {}  # specificity dictionary
+acc = {}  # accuracy
+prc = {}  # precision
+f1_score = {}  # f1 score
 
 manual_scores_df = pd.read_csv("strings.csv")
 
@@ -210,9 +213,11 @@ for (t, articles_score) in score_bin.items():
 
     sens[t] = float(count_TP) / float(count_TP + count_FN)
     spec[t] = float(count_TN) / float(count_TN + count_FP)
+    acc[t] = float(count_TP + count_TN) / float(count_TN + count_FP + count_FN + count_TP)
 
     print("Specificity for threshold [", t, "] is", spec[t])
     print("Sensitivity for threshold [", t, "] is", sens[t])
+    print("Accuracy for threshold [", t, "] is", acc[t])
     print("-------------")
 
 # ROC curve and Euclidean distance to search the optimal threshold
@@ -222,10 +227,12 @@ k = 0
 spec1 = []
 sens1 = []
 print(spec, sens)
+
 for t in thresholds:
     spec1.append(spec[t])
     sens1.append(sens[t])
 print(spec1, sens1)
+
 for i in range(0, len(sens1)):
     spec1[i] = 1 - spec1[i]
     dist[i] = np.sqrt((0-spec1[i])**2+(1-sens1[i])**2)
