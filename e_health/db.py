@@ -101,21 +101,11 @@ class DBManager:
         self.cursor.execute(sql, task)
         # self.commit()
 
-    # Update the parameter "Score" of database at the fist research
-    def update_score(self, task):
-        #       """
-        #       update researchkeys of a task
-        #       :param conn:
-        #       :param task:
-        #       :return: project id
-        #       """
-
-        sql = """ UPDATE Articles
-                 SET ResearchKeys = ?
-                 WHERE PubmedID = ?"""
-
-        # cur = self.cursor()
-        self.cursor.execute(sql, task)
+    def update_score(self, val):
+        slq_query = """ UPDATE Articles
+                        SET SCORE = ?
+                        WHERE PubmedID = ?"""
+        self.cursor.execute(slq_query, val)
         self.connection.commit()
 
     # Update the parameter "Score" of database at the fist research
@@ -133,7 +123,7 @@ class DBManager:
 
         # cur = self.cursor()
         self.cursor.execute(sql, task)
-        self.connection.commit()
+        # self.commit()
 
     # Get the articles saved in the db as a list
     def get_articles(self):
