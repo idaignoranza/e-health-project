@@ -12,7 +12,6 @@ class Article:
     abstract: Optional[str]
     pub_date: Optional[str]
     researchkeys: Optional[str]
-    score: Optional[str]
 
     def __init__(
         self,
@@ -23,7 +22,6 @@ class Article:
         pub_date: str,
         authors: List[Dict] or str,
         researchkeys: str,
-        score: List[Dict] or str,
     ):
 
         if title == "":
@@ -74,10 +72,7 @@ class Article:
             self.researchkeys = None
         else:
             self.researchkeys = researchkeys
-        if score == "":
-            self.score = None
-        else:
-            self.score = score
+
 
     # Count how many times the given word `word` appears in the abstract;
     # return 0 if the article has no abstract.

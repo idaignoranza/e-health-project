@@ -7,6 +7,7 @@ import pandas as pd
 from pymed import PubMed
 import e_health
 import nltk
+import matplotlib.pyplot as plt
 
 # Connect to the database
 db_path = "data/data.db"
@@ -44,7 +45,6 @@ for result in results:
     pub_date = result.publication_date
     authors = result.authors
     researchkeys = sel
-    score = "-"
 
     # print("got article with title", title, "pid", pid, "doi", doi, "abstract", abstract, "pub_date", pub_date, "authors", authors, "researchkeys", sel)
     article = e_health.Article(
@@ -55,7 +55,6 @@ for result in results:
         pub_date=pub_date,
         authors=authors,
         researchkeys=sel,
-        score="-",
     )
 
     # print article:
@@ -76,8 +75,6 @@ for result in results:
         article.abstract,
         "\nresearchkeys:",
         article.researchkeys,
-        "\nscore:",
-        article.score,
     )
 
     duplicate = 0
@@ -154,7 +151,7 @@ for article in articles:
     count_sums[pid] = float(value_ab[pid] + value_tit[pid])
 
 score = {}
-thresholds = np.linspace(0, 1, num=21)
+thresholds = np.linspace(0, 1, num=100)
 score_bin = {t: {} for t in thresholds}
 
 min_count = min(count_sums.values())
@@ -218,7 +215,36 @@ for (t, articles_score) in score_bin.items():
     print("Sensitivity for threshold [", t, "] is", sens[t])
     print("-------------")
 
+# ROC curve and Euclidean distance to search the optimal threshold
+dist = [None for _ in spec.values()]
+min_ = 50
+k = 0
+spec1 = []
+sens1 = []
+print(spec, sens)
+for t in thresholds:
+    spec1.append(spec[t])
+    sens1.append(sens[t])
+print(spec1, sens1)
+for i in range(0, len(sens1)):
+    spec1[i] = 1 - spec1[i]
+    dist[i] = np.sqrt((0-spec1[i])**2+(1-sens1[i])**2)
+
+    if dist[i] < min_:
+        min_ = dist[i]
+        k = i
+
+print('The best threshold is: ', thresholds[k])
+plt.plot(spec1, sens1, marker="o", color='red')
+plt.title("ROC curve")
+plt.xlabel("1-Specificity")
+plt.ylabel("Sensitivity")
+plt.xlim(0, 1)
+plt.ylim(0, 1)
+plt.show()
+
 db.close()
+
 # 1)  (attention AND (disorder OR disorders)) OR "ADHD") AND (serious AND (game OR games))
 # 2)  ((attention AND (disorder OR disorders)) OR "ADHD") AND (kid OR kids OR child OR children OR childhood) AND (treatment OR treatments OR therapy OR therapies) NOT (adult OR adults)
 # 3)  ((attention AND (disorder OR disorders)) OR "ADHD") AND ((computer AND (game OR games)) OR (game-based)) AND (therapy OR therapies OR treatment OR treatments)
