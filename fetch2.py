@@ -1,4 +1,4 @@
-#!/#!/usr/bin/env python
+#!/usr/bin/env python
 # coding: utf-8
 import os
 
@@ -111,27 +111,20 @@ nltk.download("stopwords")
 stopwords = nltk.corpus.stopwords.words("english")
 print("Counting the keywords in the abstract")
 
-# This holds the list of keywords in each article
-keys_list = [[] for _ in articles]
-
 # This holds the count of keywords appearances in the abstract (per article)
-abs_count_list = [[] for _ in articles]
+abs_counts = {}
 
 # This holds the count of keywords appearances in the title (per article)
-title_count_list = [[] for _ in articles]
+title_counts = {}
 
 #    --------- this one is the index of the article in the list
 #    |   +---- this one is the article itself
 #    v   v
-for (i, art) in enumerate(articles):
+for art in articles:
     # get the 'cleaned-up' keys... (see definition in article.py)
     keys = art.get_keys()
 
-    # initialize keys_list[i] to the list of keys we have just computed
-    keys_list[i] = [k for k in keys]
-
     # (see the definitions of count_in_* in article.py)
-
     #                   +-- this is called list comprehension -+
     #                   |                         + for every +|
     #                   |                         | key `k`   ||
@@ -141,109 +134,91 @@ for (i, art) in enumerate(articles):
     #                   | art.count_in_abstract(k)|           ||
     #                   |                         |           ||
     #                   v                         v           vv
-    abs_count_list[i] = [art.count_in_abstract(k) for k in keys]
-
-    title_count_list[i] = [art.count_in_title(k) for k in keys]
+    abs_counts[art.pubmed_id] = [art.count_in_abstract(k) for k in keys]
+    title_counts[art.pubmed_id] = [art.count_in_title(k) for k in keys]
 
 # Inserire qui, se necessario, stampe di vario genere...
-value_ab = [float(sum(abs_count)) for abs_count in abs_count_list]
+value_ab = {pid: float(sum(abs_count)) for (pid, abs_count) in abs_counts.items()}
+
 #                   +------------+ note that sum([]) = 0
 #                   |            | so there's no need to check if tit_count is None,
 #                   v            v as we initialized it to []...
-value_tit = [(float(sum(tit_count)) * 0.75) for tit_count in title_count_list]
+value_tit = {
+    pid: (float(sum(tit_count)) * 0.75) for (pid, tit_count) in title_counts.items()
+}
 
 # Somma gli elementi degli score per abstract e titolo
-somma_ab_tit = []
-for i in range(0, len(value_ab)):
-    somma_ab_tit.append(float(value_ab[i] + value_tit[i]))
+count_sums = {}
+for article in articles:
+    pid = article.pubmed_id
+    count_sums[pid] = float(value_ab[pid] + value_tit[pid])
 
-# print(somma_ab_tit)
-score = []
-thresh = np.linspace(0, 1, num=21)
-score_bin =[[] for _ in thresh]
+score = {}
+thresholds = np.linspace(0, 1, num=21)
+score_bin = {t: {} for t in thresholds}
 
-for i in range(0, len(somma_ab_tit)):
-    val = (somma_ab_tit[i] - min(somma_ab_tit)) / (
-        max(somma_ab_tit) - min(somma_ab_tit)
-    )
-    score.append(val)
-    for j in range(0,len(thresh)):
-        if score[i] <= thresh[j]:
-            score_bin[j].append(0)
-        elif score[i] > thresh[j]:
-            score_bin[j].append(1)
+min_count = min(count_sums.values())
+max_count = max(count_sums.values())
 
-sens = [None for _ in score_bin]  # sensitivity vector
-spec = [None for _ in score_bin]  # specificity vector
+for (pid, count) in count_sums.items():
+    val = (count - min_count) / (max_count - min_count)
+    score[pid] = val
 
-for k in range(0, len(score_bin)):
-    print('THRESHOLD = ', round(thresh[k],2),'\n')
-    print(score_bin[k])
-    i = 0
+    for t in thresholds:
+        if val <= t:
+            score_bin[t][pid] = 0
+        elif val > t:
+            score_bin[t][pid] = 1
 
-    for l in articles:
-        db.update_score((score_bin[k][i], l.pubmed_id))
-        #for res in results:
-         #   if l.pubmed_id == res.pubmed_id:
-          #      new_score = max(res.score, score_bin[k][i])
-           #     db.update_task_score((new_score, l.pubmed_id))
-        i = i + 1
+sens = {}  # sensitivity dictionary
+spec = {}  # specificity dictionary
 
+manual_scores_df = pd.read_csv("strings.csv")
 
-# Export in csv
-    articles = db.get_articles()
-    articles_dict = [a.__dict__ for a in articles]
-    df = pd.DataFrame(articles_dict)
+if manual_scores_df is None:
+    print("errore!!!!")
+    quit()
 
-    df.to_csv("data/data.csv", index=False)
+assert manual_scores_df is not None
 
-    df = pd.read_csv('data/data.csv', index_col=0)
-    #print(df)
+manual_scores_df = manual_scores_df.fillna(0)
+manual_scores = {str(p.pubmed_id) : p.Score1 for p in manual_scores_df.itertuples()}
 
-    df1=pd.read_csv('strings.csv', index_col=0)
-    df1=df1.fillna(0)
-    #print(df1)
-
-    df2=df.join(df1, on='pubmed_id', how='inner')#, lsuffix='', rsuffix='', sort=False, validate=None)
+for (t, articles_score) in score_bin.items():
 
     count_TP = 0
     count_TN = 0
     count_FP = 0
     count_FN = 0
-    ind = []
 
-    for i in range(0,len(df2.index)):
-        ind.append(i)
-    df2.index=ind
-    #print(df2)
+    for (pid, score) in articles_score.items():
+        # Ottieni il valore contenuto in strings.csv per il pid `pid`
+        manual_score = manual_scores.get(pid)
 
-    for i in range(0,len(df2.index)):
-        if df2.loc[i]['Score'] == 0 and df2.loc[i]['Score1'] == 1:
-            count_FN = count_FN + 1
-        elif df2.loc[i]['score'] == 1 and df2.loc[i]['Score1'] == 0:
-            count_FP = count_FP + 1
-        elif df2.loc[i]['score'] == 1 and df2.loc[i]['Score1'] == 1:
-            count_TP = count_TP + 1
-        elif df2.loc[i]['score'] == 0 and df2.loc[i]['Score1'] == 0:
-            count_TN = count_TN + 1
+        if manual_score is None: 
+            continue
 
-    print("count_fn:", count_FN)
-    print("count_fn:", count_)
-    print("count_fn:", count_FN)
-    print("count_fn:", count_FN)
+        if manual_score == 1 and score == 1:
+            count_TP += 1
+        elif manual_score == 1 and score == 0:
+            count_FN += 1
+        elif manual_score == 0 and score == 1:
+            count_FP += 1
+        elif manual_score == 0 and score == 0:
+            count_TN += 1
 
+    if (count_TP == 0 and count_FN == 0) or (count_TN == 0 and count_FP == 0): 
+        print("Cannot compute sensitivity and specificity for threshold", t)
+        continue
 
-    print(count_FN, count_FP, count_TN, count_TP)
+    sens[t] = float(count_TP) / float(count_TP + count_FN)
+    spec[t] = float(count_TN) / float(count_TN + count_FP)
 
-    sens[k] = float(count_TP)/float(count_TP+count_FN)
-    spec[k] = float(count_TN)/float(count_TN+count_FP)
-    print('Specificity=', spec[k])
-    print('Sensitivity=', sens[k])
+    print("Specificity for threshold [", t, "] is", spec[t])
+    print("Sensitivity for threshold [", t, "] is", sens[t])
     print("-------------")
 
-
 db.close()
-
 # 1)  (attention AND (disorder OR disorders)) OR "ADHD") AND (serious AND (game OR games))
 # 2)  ((attention AND (disorder OR disorders)) OR "ADHD") AND (kid OR kids OR child OR children OR childhood) AND (treatment OR treatments OR therapy OR therapies) NOT (adult OR adults)
 # 3)  ((attention AND (disorder OR disorders)) OR "ADHD") AND ((computer AND (game OR games)) OR (game-based)) AND (therapy OR therapies OR treatment OR treatments)
