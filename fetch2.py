@@ -159,8 +159,9 @@ for i in range(0, len(value_ab)):
 
 # print(somma_ab_tit)
 score = []
-thresh=np.linspace(0,1,num=21)
-score_bin =[[] for _ in thresh ]
+thresh = np.linspace(0, 1, num=21)
+score_bin =[[] for _ in thresh]
+
 for i in range(0, len(somma_ab_tit)):
     val = (somma_ab_tit[i] - min(somma_ab_tit)) / (
         max(somma_ab_tit) - min(somma_ab_tit)
@@ -172,9 +173,9 @@ for i in range(0, len(somma_ab_tit)):
         elif score[i] > thresh[j]:
             score_bin[j].append(1)
 
+sens = [None for _ in score_bin]  # sensitivity vector
+spec = [None for _ in score_bin]  # specificity vector
 
-sens=[None for _ in score_bin]  # sensitivity vector
-spec=[None for _ in score_bin]  # specificity vector
 for k in range(0, len(score_bin)):
     print('THRESHOLD = ', round(thresh[k],2),'\n')
     print(score_bin[k])
@@ -190,15 +191,13 @@ for k in range(0, len(score_bin)):
 
 
 # Export in csv
-    import pandas as pd
-
     articles = db.get_articles()
     articles_dict = [a.__dict__ for a in articles]
     df = pd.DataFrame(articles_dict)
 
     df.to_csv("data/data.csv", index=False)
 
-    df=pd.read_csv('data/data.csv', index_col=0)
+    df = pd.read_csv('data/data.csv', index_col=0)
     #print(df)
 
     df1=pd.read_csv('strings.csv', index_col=0)
@@ -207,32 +206,41 @@ for k in range(0, len(score_bin)):
 
     df2=df.join(df1, on='pubmed_id', how='inner')#, lsuffix='', rsuffix='', sort=False, validate=None)
 
-    count_TP=0
-    count_TN=0
-    count_FP=0
-    count_FN=0
-    ind=[]
+    count_TP = 0
+    count_TN = 0
+    count_FP = 0
+    count_FN = 0
+    ind = []
+
     for i in range(0,len(df2.index)):
         ind.append(i)
     df2.index=ind
     #print(df2)
 
     for i in range(0,len(df2.index)):
-        if df2.loc[i]['score']==0 and df2.loc[i]['Score1']==1:
-            count_FN=count_FN+1
-        elif df2.loc[i]['score']==1 and df2.loc[i]['Score1']==0:
+        if df2.loc[i]['Score'] == 0 and df2.loc[i]['Score1'] == 1:
+            count_FN = count_FN + 1
+        elif df2.loc[i]['score'] == 1 and df2.loc[i]['Score1'] == 0:
             count_FP = count_FP + 1
-        elif df2.loc[i]['score']==1 and df2.loc[i]['Score1']==1:
+        elif df2.loc[i]['score'] == 1 and df2.loc[i]['Score1'] == 1:
             count_TP = count_TP + 1
-        elif df2.loc[i]['score']==0 and df2.loc[i]['Score1']==0:
+        elif df2.loc[i]['score'] == 0 and df2.loc[i]['Score1'] == 0:
             count_TN = count_TN + 1
 
-    #print(count_FN,count_FP,count_TN,count_TP)
-    sens[k]=float(count_TP)/float(count_TP+count_FN)
-    spec[k]=float(count_TN)/float(count_TN+count_FP)
-    print('Specificity=',spec[k])
-    print('Sensitivity=',sens[k])
+    print("count_fn:", count_FN)
+    print("count_fn:", count_)
+    print("count_fn:", count_FN)
+    print("count_fn:", count_FN)
+
+
+    print(count_FN, count_FP, count_TN, count_TP)
+
+    sens[k] = float(count_TP)/float(count_TP+count_FN)
+    spec[k] = float(count_TN)/float(count_TN+count_FP)
+    print('Specificity=', spec[k])
+    print('Sensitivity=', sens[k])
     print("-------------")
+
 
 db.close()
 

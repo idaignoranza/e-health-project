@@ -118,8 +118,8 @@ class DBManager:
         #       """
 
         sql = """ UPDATE Articles
-                 SET Score = ?
-                 WHERE PubmedID = ?"""
+                  SET Score = ?
+                  WHERE PubmedID = ?"""
 
         # cur = self.cursor()
         self.cursor.execute(sql, task)
